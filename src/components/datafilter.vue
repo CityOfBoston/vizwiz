@@ -19,6 +19,7 @@ import queryString from 'query-string'
 import textInput from './fields/textInput.vue'
 import selectInput from './fields/selectInput.vue'
 import group from './fields/group.vue'
+import deepmerge from 'deepmerge'
 import { isUndefined } from 'lodash'
 
 export default {
@@ -109,7 +110,7 @@ export default {
     },
     modelChanged: function (value, field) {
       document.dispatchEvent(new CustomEvent(`${this.vizId}.filter`, {
-        detail: { filters: this.model }
+        detail: deepmerge.all([{}, this.model])
       }))
       let newurl = new URL(window.location.href)
       newurl.search = queryString.stringify(this.model)

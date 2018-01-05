@@ -246,9 +246,9 @@
           ]
         })
         document.addEventListener('myvizid.filter', function (event) {
-          elem.innerHTML = '<pre>' + JSON.stringify(event.detail.filters) + '</pre>'
-          if (event.detail.filters.Time) {
-            datatable.ajax.url(apiUrl + '&where=Time%3D%27' + event.detail.filters.Time + '%27').load()
+          elem.innerHTML = '<pre>' + JSON.stringify(event.detail) + '</pre>'
+          if (event.detail.Time) {
+            datatable.ajax.url(apiUrl + '&where=Time%3D%27' + event.detail.Time + '%27').load()
           } else {
             datatable.ajax.url(apiUrl + '&where=1%3D1&').load()
           }
