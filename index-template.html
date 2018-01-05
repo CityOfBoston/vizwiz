@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>vizwiz</title>
+    <link rel="stylesheet" type="text/css" href="https://patterns.boston.gov/css/public.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <style type="text/css">
+      #data-filter-widget {
+        margin: 60px
+      }
+    </style>
+  </head>
+  <body>
+    <div id="data-filter-widget">
+      <data-filter title="Component Title" viz-id="myvizid" defaults="Time=Breakfast"></data-filter>
+    </div>
+
+    <!-- built files will be auto injected -->
+    <div style="margin: 70px;background: #ddd;padding:30px">
+      <h3>This listens for <code>myvizid.filter</code> events</h3>
+      <div id="foo"></div>
+      <table id="myTable" class="display" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th>FID</th>
+            <th>Time</th>
+            <th>Day</th>
+            <th>Truck</th>
+            <th>Location</th>
+            <th>Hours</th>
+            <th>Title</th>
+            <th>Site Number</th>
+            <th>Management</th>
+            <th>Notes</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>Link</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <script src="https://patterns.boston.gov/scripts/all.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var formSchema = [
+          {
+            type: 'group',
+            fields: [
+              {
+                label: 'text input name',
+                inputAttributes: {
+                  name: 'textinputname',
+                  required: true,
+                },
+                inputType: 'text',
+                model: 'textinput',
+                type: 'text-input',
+                validator: [ 'required', 'alpha', ]
+              },
+              {
+                help: 'here is your help',
+                label: 'my number name',
+                inputAttributes: {
+                  name: 'myinputname',
+                },
+                inputType: 'number',
+                model: 'numberinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my email name',
+                inputAttributes: {
+                  name: 'myemailname',
+                },
+                inputType: 'email',
+                model: 'emailinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my hidden name',
+                inputAttributes: {
+                  name: 'myhiddenname',
+                },
+                inputType: 'hidden',
+                model: 'hiddeninput',
+                type: 'text-input',
+              },
+            ],
+          },
+          {
+            label: 'my color name',
+            inputAttributes: {
+              name: 'mycolorname',
+            },
+            inputType: 'color',
+            model: 'colorinput',
+            type: 'text-input',
+          },
+          {
+            type: 'group',
+            legend: 'Date Fields',
+            fields: [
+              {
+                label: 'my date name',
+                inputAttributes: {
+                  name: 'mydatename',
+                },
+                inputType: 'date',
+                model: 'dateinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my datetimelocal name',
+                inputAttributes: {
+                  name: 'mydatetimelocalname',
+                },
+                inputType: 'datetime-local',
+                model: 'datetimelocalinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my month name',
+                inputAttributes: {
+                  name: 'mymonthname',
+                },
+                inputType: 'month',
+                model: 'monthinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my time name',
+                inputAttributes: {
+                  name: 'mytimename',
+                },
+                inputType: 'time',
+                model: 'timeinput',
+                type: 'text-input',
+              },
+              {
+                label: 'my week name',
+                inputAttributes: {
+                  name: 'myweekname',
+                },
+                inputType: 'week',
+                model: 'weekinput',
+                type: 'text-input',
+              },
+            ]
+          },
+          {
+            label: 'my range name',
+            inputAttributes: {
+              name: 'myrangename',
+            },
+            inputType: 'range',
+            model: 'rangeinput',
+            type: 'text-input',
+          },
+          {
+            label: 'my search name',
+            inputAttributes: {
+              name: 'mysearchname',
+            },
+            inputType: 'search',
+            model: 'searchinput',
+            type: 'text-input',
+          },
+          {
+            label: 'my tel name',
+            inputAttributes: {
+              name: 'mytelname',
+            },
+            inputType: 'tel',
+            model: 'telinput',
+            type: 'text-input',
+          },
+          {
+            label: 'my url name',
+            inputAttributes: {
+              name: 'myurlname',
+            },
+            inputType: 'url',
+            model: 'urlinput',
+            type: 'text-input',
+          },
+          {
+            help: 'here is your help',
+            label: 'Time',
+            selectAttributes: {
+              name: 'time',
+            },
+            model: 'Time',
+            type: 'select-input',
+            values: [
+              'Breakfast', 'Lunch', 'Dinner'
+            ]
+          }
+        ]
+        var formSchema2 = [
+          {
+            model: 'Time',
+            type: 'select-input',
+            values: [
+              'Breakfast', 'Lunch', 'Dinner'
+            ]
+          }
+        ]
+        document.getElementsByTagName('data-filter')[0].form = formSchema2
+        var apiUrl = 'https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services/food_trucks_schedule/FeatureServer/0/query?outFields=*&f=json'
+        var elem = document.getElementById('foo')
+        var datatable = $('#myTable').DataTable({
+          'ajax': {
+            'url': apiUrl + '&where=1%3D1&',
+            'dataSrc': function (data) {
+              var returnData = []
+              var rawData = data.features
+              rawData.forEach(function (val) {
+                returnData.push(val.attributes)
+              })
+              return returnData
+            },
+          },
+          'columns': [
+            {'data': 'FID'},
+            {'data': 'Time'},
+            {'data': 'Day'},
+            {'data': 'Truck'},
+            {'data': 'Loc'},
+            {'data': 'Hours'},
+            {'data': 'Title'},
+            {'data': 'Site_num'},
+            {'data': 'Management'},
+            {'data': 'Notes'},
+            {'data': 'POINT_X'},
+            {'data': 'POINT_Y'},
+            {'data': 'Link'},
+            {'data': 'Start_time'},
+            {'data': 'End_time'},
+          ]
+        })
+        document.addEventListener('myvizid.filter', function (event) {
+          elem.innerHTML = '<pre>' + JSON.stringify(event.detail.filters) + '</pre>'
+          if (event.detail.filters.Time) {
+            datatable.ajax.url(apiUrl + '&where=Time%3D%27' + event.detail.filters.Time + '%27').load()
+          } else {
+            datatable.ajax.url(apiUrl + '&where=1%3D1&').load()
+          }
+        })
+      })
+    </script>
+  </body>
+</html>
