@@ -41,7 +41,7 @@ const AvailableFilterTypeMap = new Map([
 /**
  * Gets the services from an ArcGIS endpoint
  *
- * The callback gets an Array of Objects with keys name, type and url.
+ * Returns an Array of Objects with keys name, type and url.
  *
  * @param      {String}  url     The URL to the ArcGIS endpoint
  * @return     {Array} An array of Objects with keys {name, type, url}
@@ -57,11 +57,27 @@ async function getServices (url) {
   }
 }
 
+/**
+ * An ArcGIS service endpoint with accessors for its parts
+ *
+ * @type       {class}
+ */
 var ArcGISService = class ArcGISService {
+  /**
+   * Requires an url to the root of the service, such as one returned from the
+   * `getServices()` call.
+   *
+   * @param      {String}  url     The url to the REST endpoint
+   */
   constructor (url) {
     this.baseUrl = url
   }
 
+  /**
+   * Return a list of the layers available
+   *
+   * @return     {Promise}  Eventually returns a list of `ArcGISLayer` objects
+   */
   async layers () {
     try {
       let baseUrl = this.baseUrl
@@ -80,13 +96,45 @@ var ArcGISService = class ArcGISService {
   }
 }
 
+/**
+ * A layer on an ArcGIS service endpoint
+ *
+ * @type       {class}
+ */
 var ArcGISLayer = class ArcGISLayer {
+  /**
+   * Constructs the object.
+   *
+   * @param      {String}  baseUrl  The base url for the REST endpoint. NOT the url for this layer.
+   * @param      {Integer}  id       The identifier for the layer
+   * @param      {String}  name     The name of the layer
+   */
   constructor (baseUrl, id, name) {
     this.id = id
     this.name = name
     this.url = `${baseUrl}/${id}`
   }
 
+  /**
+   * Returns the fields available on the layer.
+   *
+   * The return field description object looks like:
+   *
+   * {<fieldname>: <fieldAttributes>, <fieldname>: <fieldAttributes>}
+   *
+   * fieldAttributes is an object with the following attributes:
+   *
+   * label: The human-readable version of the field name. ArcGIS's alias attribute.
+   * type: A generalized field type provided by `ArcGISTypeMap`
+   * visible: Is this field visible? Used for widgets that want to show only
+   *    certain fields. Defaults to `false`
+   * availableFilterTypes: An array of filter types that can be used by this field type
+   * filterType: The selected filter type. Defaults to `'none'`
+   * values: The distinct values of this field. Defaults to an empty array, and meant
+   *    to be filled upon request.
+   *
+   * @return     {Promise}  A Field description object
+   */
   async fields () {
     let noneArray = ['none']
     try {
@@ -111,6 +159,16 @@ var ArcGISLayer = class ArcGISLayer {
     }
   }
 
+  /**
+   * Gets the distinct values for a field.
+   *
+   * This provides a way to query the ArcGIS service to return the distinct values
+   * for a specific field. This is needed when you want to provide a `<select>`
+   * filter, or are curious what type of data is in the field.
+   *
+   * @param      {String}   fieldName  The field name
+   * @return     {Promise}  The distinct values as an array
+   */
   async getDistinctValues (fieldName) {
     try {
       let params = {
