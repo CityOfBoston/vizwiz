@@ -94,7 +94,7 @@ export default {
     if (this.defaults) {
       this.updateDefaults(this.defaults)
     }
-    window.addEventListener('popstate', this.onPopstate)
+    document.addEventListener('setfilter', this.onSetFilter)
     this.$on('modelchanged', this.modelChanged)
   },
   computed: {
@@ -105,6 +105,9 @@ export default {
     'group': group,
   },
   methods: {
+    onSetFilter: function (event) {
+      this.updateFields(event.detail.form)
+    },
     onPopstate: function (event) {
       // console.log(event.state)
     },
@@ -118,6 +121,7 @@ export default {
     },
     updateFields: function (form) {
       let tempForm = form
+      let newFields = []
       this.fields = []
 
       if (typeof form === 'string') {
@@ -127,13 +131,16 @@ export default {
         if (isUndefined(this.model[field.model]) && field.default) {
           this.$set(this.model, field.model, field.default)
         }
-        this.fields.push({
+        newFields.push({
           schema: field,
           fieldIdPrefix: this.fieldIdPrefix,
           model: this.model,
           vizId: this.vizId,
         })
       }
+      this.$nextTick(function () {
+        this.fields = newFields
+      })
     },
     updateDefaults: function (defaultConfig) {
       let config
