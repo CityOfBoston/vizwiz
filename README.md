@@ -2,6 +2,8 @@
 
 > A data visualization widget library
 
+Vizwiz contains several widgets to help with data vizualization. They are meant to work together, communicating via custom JavaScript events.
+
 ## Build Setup
 
 ``` bash
