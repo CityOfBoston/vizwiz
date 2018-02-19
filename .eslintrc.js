@@ -1,10 +1,10 @@
 // http://eslint.org/docs/user-guide/configuring
 
 module.exports = {
-  esversion: 6,
   root: true,
   parser: 'babel-eslint',
   parserOptions: {
+    ecmaVersion: 6,
     sourceType: 'module'
   },
   env: {
