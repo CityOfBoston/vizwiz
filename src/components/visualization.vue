@@ -57,6 +57,7 @@ import ListContainer from './list/listcontainer.vue'
 import DataSource from './datasource.vue'
 import ModalDialog from './modaldialog.vue'
 import MapEditor from './mapeditor.vue'
+import store from './store'
 
 require('../../node_modules/uikit/dist/css/uikit.min.css')
 
@@ -65,6 +66,7 @@ export default {
   components: {
     ListContainer,
   },
+  store: store,
   props: {
     /**
      * HTML id of the item that contains a JSON config

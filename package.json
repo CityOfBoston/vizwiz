@@ -19,7 +19,10 @@
     "docs": "docsify serve docs",
     "lint": "eslint --ext .js,.vue src test/unit/specs"
   },
-  "dependencies": {},
+  "dependencies": {
+    "nanoid": "^1.0.2",
+    "vuex": "^3.0.1"
+  },
   "devDependencies": {
     "ajv": "^6.1.1",
     "axios": "^0.17.1",
