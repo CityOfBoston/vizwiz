@@ -5,121 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>vizwiz</title>
-    <link rel="stylesheet" type="text/css" href="https://patterns.boston.gov/css/public.css" />
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <style type="text/css">
       body {
         margin-top: 100px;
       }
-      #data-filter-widget, #dataconnector {
-        margin: 60px
-      }
-      .sticky {
-        overflow-y: scroll;
-        background-color: #ddd;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        height: 100px;
-        padding: 10px;
-        z-index: 1;
-      }
-      .sticky p {
-        margin: 0;
-      }
     </style>
   </head>
   <body>
-    <div id="eventPortal" class="sticky">
-      <p><strong>Change Table Event:</strong><span id="ctevt"></span></p>
-      <p><strong>Change Filter Event:</strong><span id="cfevt"></span></p>
-      <p><strong>Filter Event:</strong><span id="fevt"></span></p>
+    <div id="visualizationinput" class="uk-container">
+      <textarea id="vizconfig" class="uk-textarea" style="height:100px">
+{
+  "vizId": "123456",
+  "title": "What is my title",
+  "description": "This is a description",
+  "data_sources": [
+    {
+      "uid": "SomeRandomValue",
+      "type": "cob-arcgis",
+      "attributes": {
+        "service": "https://services.arcgis.com/sFnw0xNflSi8J0uh/ArcGIS/rest/services/food_trucks_schedule/FeatureServer",
+        "layer": 0
+      },
+      "icon": "https://patterns.boston.gov/icons/Bathrooms@3x.png",
+      "cluster_icons": true,
+      "polygon_style": {
+        "name": "default",
+        "color": "#0C2639",
+        "hover_color": "#FB4D42"
+      },
+      "popover": "<p>I am a popover</p>"
+    }
+  ],
+  "maps": null
+}
+      </textarea>
+      <viz-wiz config="#vizconfig"></viz-wiz>
     </div>
-    <div id="dataconnector">
-      <data-connector datasource="https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services"></data-connector>
-    </div>
-    <div id="data-filter-widget">
-      <data-filter title="Component Title" viz-id="myvizid" defaults=""></data-filter>
-    </div>
-
-    <!-- built files will be auto injected -->
-    <div style="margin: 70px;background: #ddd;padding:30px">
-      <div id="tablediv"></div>
-    </div>
-    <script src="https://patterns.boston.gov/scripts/all.js"></script>
-    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript">
-      function setupTable (columns, url) {
-        if (columns && columns.length > 0) {
-          var tableHeaders = ''
-          var datatableColumns = []
-
-          $.each(columns, function (i, val) {
-            tableHeaders += '<th>' + val.label + '</th>'
-            datatableColumns.push({data: val.name})
-          })
-          $('#tablediv').empty()
-          if (url) {
-            $('#tablediv').append('<table id="displayTable" class="display" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>')
-            return $('#displayTable').DataTable({
-              'ajax': {
-                'url': url + '&where=1%3D1',
-                'dataSrc': function (data) {
-                  var returnData = []
-                  var rawData = data.features
-                  rawData.forEach(function (val) {
-                    returnData.push(val.attributes)
-                  })
-                  return returnData
-                },
-              },
-              'searching': false,
-              'columns': datatableColumns,
-            })
-          }
-        }
-      }
-      $(document).ready(function () {
-        var datatable, apiUrl = ''
-        document.addEventListener('changetable', function (event) {
-          var columnNames = []
-
-          event.detail.columns.forEach(function(item) {
-            columnNames.push(item.name)
-          })
-
-          apiUrl = event.detail.url + '?f=json&returnGeometry=false&outFields=' + columnNames.join(',')
-          datatable = setupTable(event.detail.columns, apiUrl)
-        })
-        document.addEventListener('myvizid.filter', function (event) {
-          $('#fevt').html('<code>' + JSON.stringify(event.detail) + '</code>')
-        })
-        document.addEventListener('changetable', function (event) {
-          console.log('ctevt')
-          $('#ctevt').html('<code>' + JSON.stringify(event.detail) + '</code>')
-        })
-        document.addEventListener('setfilter', function (event) {
-          $('#cfevt').html('<code>' + JSON.stringify(event.detail) + '</code>')
-        })
-        document.addEventListener('myvizid.filter', function (event) {
-          var queryParams = []
-          for (var field in event.detail) {
-            if (event.detail[field]) {
-              if (Array.isArray(event.detail[field])) {
-                queryParams.push(field + ' IN (\'' + event.detail[field].join('\',\'') + '\')')
-              } else {
-                queryParams.push(field + '=\'' + event.detail[field] + '\'')
-              }
-            }
-          }
-          if (queryParams.length === 0) {
-            queryParams = ['1=1']
-          }
-          var searchUrl = apiUrl + '&where=' + encodeURIComponent(queryParams.join(' AND '))
-          datatable.ajax.url(searchUrl).load()
-        })
-      })
-    </script>
   </body>
 </html>

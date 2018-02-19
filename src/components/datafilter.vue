@@ -77,8 +77,7 @@ export default {
   },
   data () {
     return {
-      errors: [],  // validation errors
-      fields: [],  // Each field configuration
+      fields: [], // Each field configuration
     }
   },
   watch: {
@@ -159,7 +158,6 @@ export default {
     },
   }
 }
-
 </script>
 
 <style lang='css' scoped>

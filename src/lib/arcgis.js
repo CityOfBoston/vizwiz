@@ -48,7 +48,6 @@ const AvailableFilterTypeMap = new Map([
  */
 async function getServices (url) {
   try {
-    console.log('getServices', url)
     const response = await axios.get(url, {params: {f: 'json'}})
     return response.data.services
   } catch (error) {
@@ -80,6 +79,9 @@ var ArcGISService = class ArcGISService {
    */
   async layers () {
     try {
+      if (this.baseUrl === '') {
+        return []
+      }
       let baseUrl = this.baseUrl
       return await axios.get(this.baseUrl, {params: {f: 'json'}}).then(
         function (response) {
@@ -137,6 +139,9 @@ var ArcGISLayer = class ArcGISLayer {
    */
   async fields () {
     let noneArray = ['none']
+    if (this.url === '') {
+      return []
+    }
     try {
       return await axios.get(this.url, {params: {f: 'json'}}).then(
         function (response) {

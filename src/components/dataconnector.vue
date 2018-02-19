@@ -1,119 +1,84 @@
 <template>
-  <form v-on:submit.prevent>
-    <div class="sel">
-      <label for="id-services" class="sel-l">Available Data Sources</label>
-      <div class="sel-c">
-        <select id="id-services" v-on:change="onServiceChange" class="sel-f">
-          <option v-for="item in services" :value="item.url">{{ item.name }}</option>
+  <div>
+    <div class="uk-margin">
+      <label for="id-services" :class="['uk-form-label', { 'uk-text-danger': $v.selectedService.$error }]">Available Data Sources</label>
+      <div class="uk-form-controls">
+        <select
+          v-model='selectedService'
+          id="id-services"
+          v-if='services'
+          v-on:change="onServiceChange"
+          :class="['uk-select', { 'uk-form-danger': $v.selectedService.$error }]">
+            <option disabled value="">Please select one</option>
+            <option
+              v-for="item in services"
+              :value="item.url">{{ item.name }}</option>
         </select>
+        <span v-else>Loading...</span>
+        <span class="uk-text-danger" v-if="$v.selectedService.$error">Please select a service.</span>
       </div>
     </div>
-    <div class="sel">
-      <label for="id-layers" class="sel-l">Available Layers</label>
-      <div class="sel-c">
-        <select id="id-layers" v-if="layers" v-on:change="onLayerChange" class="sel-f">
-          <option v-for="item in layers" :value="item.id">{{ item.name }}</option>
+    <div class="uk-margin">
+      <label for="id-layers" :class="['uk-form-label', { 'uk-text-danger': $v.selectedLayer.$error }]">Available Layers</label>
+      <div class="uk-form-controls">
+        <select
+          v-model='selectedLayer'
+          id="id-layers"
+          v-if="layers"
+          v-on:change="onLayerChange"
+          class="uk-select">
+            <option disabled value="">Please select one</option>
+            <option
+              v-for="item in layers"
+              :value="item.id">{{ item.name }}</option>
         </select>
         <span v-else>Loading...</span>
       </div>
     </div>
-    <table v-if="fields" class="responsive-table responsive-table--horizontal m-v500">
-      <thead><tr>
-        <th>Field Name</th>
-        <th>Label (Alias)</th>
-        <th>Visible</th>
-        <th>Filter Type</th>
-        <th>Values</th>
-      </tr></thead>
-      <tbody>
-        <tr v-for="(field, key) in fields">
-          <td>{{ key }} <em>({{ field.type }})</em></td>
-          <td><input type="text" :name="field.key + 'label'" v-model="fields[key].label"></td>
-          <td><input type="checkbox" :name="field.key + 'visible'" v-model="fields[key].visible"></td>
-          <td>
-            <select v-model="fields[key].filterType">
-              <option v-for="item in field.availableFilterTypes">{{ item }}</option>
-            </select>
-          </td>
-          <td>
-            <button v-on:click="getFieldValues(key)">Get Distinct Values</button>
-            {{ field.values.join(', ') }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </form>
+  </div>
 </template>
 
 <script>
 import { getServices, ArcGISService } from '../lib/arcgis'
-import { debounce } from 'lodash'
+// import { debounce } from 'lodash'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'DataConnector',
+  name: 'data-connector',
+  mixins: [validationMixin],
   props: {
+    validateNow: {
+      type: Boolean,
+      default () { return false },
+    },
+    type: {
+      type: String,
+      default () { return '' }
+    },
     datasource: {
       type: String,
       default () {
-        return ''
+        return 'https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services'
       },
+    },
+    service: {
+      type: String,
+      default () { return '' },
+    },
+    layer: {
+      type: Number,
+      default () { return 0 },
     }
   },
   computed: {
-    tableConfig: function () {
-      let config = {columns: [], url: ''}
-      if (this.arcGisLayer) {
-        config.url = `${this.arcGisLayer.url}/query`
-        for (const field in this.fields) {
-          if (this.fields[field].visible) {
-            config.columns.push({'name': field, 'label': this.fields[field].label})
-          }
-        }
-      }
-      return config
-    },
-    filterConfig: function () {
-      let config = {form: []}
-      for (const field in this.fields) {
-        switch (this.fields[field].filterType) {
-          case 'none':
-            break
-          case 'select-one':
-          case 'select-multiple':
-            if (this.fields[field].values.length === 0) {
-              this.getFieldValues(field)
-            }
-            config.form.push({
-              type: 'select-input',
-              model: field,
-              values: this.fields[field].values,
-              label: this.fields[field].label || field,
-              selectAttributes: {
-                multiple: this.fields[field].filterType === 'select-multiple',
-              }
-            })
-            break
-          case 'group':
-            break
-          default:
-            config.form.push({
-              type: 'text-input',
-              model: field,
-              label: this.fields[field].label,
-              inputType: this.fields[field].filterType,
-            })
-            break
-        }
-      }
-      return config
-    },
   },
   data () {
     return {
       baseUrl: '',
-      services: [],
       selectedService: '',
-      selectdLayer: '',
+      services: [],
+      selectedLayer: 0,
       layers: [],
       fields: {},
       arcGisLayer: null,
@@ -121,19 +86,33 @@ export default {
     }
   },
   watch: {
-    fields: {
-      handler: debounce(function (val, oldVal) {
-        let filterConfig = this.filterConfig
-        let tableConfig = this.tableConfig
-        document.dispatchEvent(new CustomEvent('setfilter', {
-          detail: filterConfig
-        }))
-        document.dispatchEvent(new CustomEvent('changetable', {
-          detail: tableConfig
-        }))
-      }, 300),
-      deep: true,
+    // fields: {
+    //   handler: debounce(function (val, oldVal) {
+    //     let filterConfig = this.filterConfig
+    //     let tableConfig = this.tableConfig
+    //     document.dispatchEvent(new CustomEvent('setfilter', {
+    //       detail: filterConfig
+    //     }))
+    //     document.dispatchEvent(new CustomEvent('changetable', {
+    //       detail: tableConfig
+    //     }))
+    //   }, 300),
+    //   deep: true,
+    // },
+    type: function (val, oldVal) {
+      if (val === 'cob-arcgis') {
+        this.baseUrl = this.datasource
+        this.selectedLayer = this.layer
+        this.selectedService = this.service
+        this.arcgisServices()
+      }
     },
+    validateNow: function (val, oldVal) {
+      if (val) {
+        this.$v.$touch()
+        this.$emit('isvalid', !this.$v.$error)
+      }
+    }
   },
   methods: {
     getFieldValues: function (fieldName) {
@@ -149,34 +128,69 @@ export default {
     },
     updateLayer: function (layerId) {
       this.selectedLayer = layerId
-      this.arcGisLayer = this.layers[this.selectedLayer]
+      if (this.layers.length === 0) {
+        return
+      }
+      this.arcGisLayer = this.layers[this.layer]
       this.arcGisLayer.fields().then(response => {
         this.fields = response
+        if (!this.$v.invalid) {
+          this.$emit('change', {
+            attributes: {
+              service: this.selectedService,
+              layer: this.selectedLayer,
+            },
+            fields: this.fields,
+          })
+        }
       })
     },
     updateService: function (url) {
-      this.selectedService = url
+      let initial = (url === this.selectedService)
+      if (initial) {
+        this.selectedService = url
+      }
       this.layers = []
       this.fields = []
       this.arcGisService = new ArcGISService(this.selectedService)
       this.arcGisService.layers().then(value => {
         this.layers = value
         this.arcGisLayer = value[0]
-        this.updateLayer(0)
+        if (initial) {
+          this.updateLayer(this.selectedLayer)
+        } else {
+          this.updateLayer(0)
+        }
       })
     },
     arcgisServices: function () {
       getServices(this.baseUrl).then(response => {
         this.services = response
-        this.updateService(response[0].url)
+        if (this.selectedService === '') {
+          this.updateService(response[0].url)
+        } else {
+          this.updateService(this.selectedService)
+        }
       }, error => {
         console.error(error)
       })
     },
   },
-  mounted: function () {
-    this.baseUrl = this.datasource
-    this.arcgisServices()
+  created: function () {
+    if (this.type === 'cob-arcgis') {
+      this.baseUrl = this.datasource
+      this.selectedLayer = this.layer
+      this.selectedService = this.service
+      this.arcgisServices()
+    }
+  },
+  validations: {
+    selectedService: {
+      required: required,
+    },
+    selectedLayer: {
+      required: required,
+    },
   }
 }
 </script>
