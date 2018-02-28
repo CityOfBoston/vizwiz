@@ -93,22 +93,11 @@
 import DataConnector from './dataconnector.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
-
-const iconChoices = {
-  'bathrooms': 'https://patterns.boston.gov/icons/Bathrooms@3x.png',
-  'default': 'https://patterns.boston.gov/icons/Charles%20waypoint%20Bor@3x.png',
-  'food basket': 'https://patterns.boston.gov/icons/Food%20basket@3x.png',
-  'food truck': 'https://patterns.boston.gov/icons/Food%20Truck@3x.png',
-  'red': 'https://patterns.boston.gov/icons/Freedom%20waypoint%20Bod@3x.png',
-  'no parking': 'https://patterns.boston.gov/icons/No%20parking@3x.png',
-  'parking': 'https://patterns.boston.gov/icons/Parking@3x.png',
-}
-const dataSourceTypeChoices = {
-  'CoB ArcGIS': 'cob-arcgis'
-}
-const polygonStyleChoices = {
-  'default': '{"name":"default","color":"#0C2639","hover_color":"#FB4D42"}',
-}
+import nanoid from 'nanoid'
+import store from './store'
+import templayed from 'templayed'
+import { ArcGISLayer } from '../lib/arcgis'
+import { debounce } from 'lodash'
 
 export default {
   name: 'data-source',
@@ -118,12 +107,19 @@ export default {
   },
   props: {
     uid: {
-      type: Number,
-      default () { return null },
+      type: String,
+      default () { return nanoid() },
     },
     dataSourceType: {
       type: String,
-      default () { return dataSourceTypeChoices['CoB ArcGIS'] }
+      default () { return store.state.dataSourceTypeChoices['CoB ArcGIS'] }
+    },
+    dataSourceTypeChoices: {
+      type: Object,
+      // default () { return {'CoB ArcGIS': 'cob-arcgis'} }
+      default () {
+        return store.state.dataSourceTypeChoices
+      }
     },
     attributes: {
       type: Object,
@@ -131,15 +127,26 @@ export default {
     },
     icon: {
       type: String,
-      default () { return iconChoices.default }
+      // default () { return this.iconChoices.default }
+      default () { return store.state.iconChoices.default }
+    },
+    iconChoices: {
+      type: Object,
+      default () {
+        return store.state.iconChoices
+      }
     },
     clusterPoints: {
       type: Boolean,
       default () { return true },
     },
     polygonStyle: {
+      type: String,
+      default () { return 'default' }
+    },
+    polygonStyleChoices: {
       type: Object,
-      default () { return polygonStyleChoices.default }
+      default () { return store.state.polygonStyleChoices }
     },
     popover: {
       type: String,

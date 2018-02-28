@@ -20,12 +20,13 @@ export default {
 
   name: 'list-item',
   props: {
-    itemDescription: {
+    uid: {
       type: String,
-      default () { return '' }
+      required: true
     },
-    initialItem: {
-      type: Object
+    editor: {
+      type: Function,
+      required: true
     },
   },
   data () {
@@ -50,20 +51,25 @@ export default {
       this.dialogInstance.show()
     },
     onSave (data) {
-      if (this.dialogInstance !== null) {
-        this.$set(this, 'dialogInstance', null)
+      this.$set(this, 'dialogInstance', null)
+      let tempItem = {
+        uid: data.uid,
+        dataSourceType: data.type,
+        attributes: Object.assign({}, data.attributes),
+        icon: data.icon,
+        clusterPoints: data.clusterIcons,
+        polygonStyle: data.polygonStyle,
+        popover: data.popover,
+        legendLabel: data.legendLabel,
       }
-      this.$set(this.item, 'selectedDataSourceType', data.type)
-      this.$set(this.item, 'selectedAttributes', Object.assign({}, data.attributes))
-      this.$set(this.item, 'selectedIcon', data.icon)
-      this.$set(this.item, 'selectedClusterPoints', data.cluster_icons)
-      this.$set(this.item, 'selectedPolygonStyle', data.polygon_style)
-      this.$set(this.item, 'selectedPopover', data.popover)
-      this.$set(this.item, 'selectedLegendLabel', data.layerLabel)
+      this.$store.dispatch('updateDataSource', tempItem)
       this.$emit('change-item', data)
+      this.item = new this.EditorClass({
+        propsData: this.$store.getters.getDataSourceById(this.uid)
+      })
     },
     onCancel () {
-      // do nothing for now
+      this.$set(this, 'dialogInstance', null)
     },
     onDeleteItem () {
       this.$emit('delete-item', this.uid)
@@ -73,7 +79,10 @@ export default {
     }
   },
   created () {
-    this.item = this.initialItem
+    this.EditorClass = Vue.extend(this.editor)
+    this.item = new this.EditorClass({
+      propsData: this.$store.getters.getDataSourceById(this.uid)
+    })
   }
 }
 </script>

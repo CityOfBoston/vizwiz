@@ -58,6 +58,7 @@ import DataSource from './datasource.vue'
 import ModalDialog from './modaldialog.vue'
 import MapEditor from './mapeditor.vue'
 import store from './store'
+import nanoid from 'nanoid'
 
 require('../../node_modules/uikit/dist/css/uikit.min.css')
 
@@ -66,7 +67,7 @@ export default {
   components: {
     ListContainer,
   },
-  store: store,
+  store,
   props: {
     /**
      * HTML id of the item that contains a JSON config
@@ -77,32 +78,42 @@ export default {
     },
   },
   created () {
-    let DataSourceClass = Vue.extend(DataSource)
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
         let conf = JSON.parse(this.configElem.value)
-        let uid = 0
-        this.vizId = conf.vizId || this.vizId
-        this.title = conf.title || this.title
-        this.description = conf.description || this.description
-        for (let dataSource of conf.data_sources) {
-          this.dataSources.push(new DataSourceClass({
-            propsData: {
-              uid: uid++,
+        this.$store.dispatch('setVizId', conf.vizId)
+        this.$store.dispatch('setTitle', conf.title)
+        this.$store.dispatch('setDescription', conf.description)
+        for (let dataSource of conf.dataSources) {
+          let tempDataSource = {
+            uid: dataSource.uid || nanoid(),
               dataSourceType: dataSource.type,
               attributes: Object.assign({}, dataSource.attributes),
               icon: dataSource.icon,
-              clusterPoints: dataSource.cluster_icons,
-              polygonStyle: dataSource.polygon_style,
+            clusterPoints: dataSource.clusterIcons,
+            polygonStyle: dataSource.polygonStyle.uid || 'default',
               popover: dataSource.popover,
+            legendLabel: dataSource.legendLabel
             }
-          }))
+          this.$store.dispatch('updateDataSource', tempDataSource)
         }
         if (conf.maps !== null && conf.maps.length > 0) {
           this.hasMap = true
-          for (let item of conf.map) {
-            this.maps.push(item)
+          for (let item of conf.maps) {
+            let tempMap = {
+              latitude: item.latitude || '42.347316',
+              longitude: item.longitude || '-71.065227',
+              zoom: item.zoom || '12',
+              showZoomControl: item.showZoomControl,
+              showLegend: item.showLegend,
+              findUserLocation: item.findUserLocation,
+              searchForAddress: item.searchForAddress,
+              zoomToAddress: item.zoomToAddress,
+              placeholderText: item.placeholderText,
+              showDataLayer: item.showDataLayer || this.$store.getters.allDataSources[0],
+            }
+            this.$store.dispatch('updateMap', tempMap)
           }
         }
       }
@@ -111,56 +122,67 @@ export default {
   data () {
     return {
       configElem: null,
-      /**
-       * The vizualization ID to include in event triggering
-       */
-      vizId: '',
-      /**
-       * The title of the visualization
-       */
-      title: '',
-      /**
-       * The description of the visualization
-       */
-      description: '',
-      /**
-       * An array of data sources to use in the visualization
-       */
-      dataSources: [],
       dsEditor: DataSource,
+      DataSourceClass: Vue.extend(DataSource),
       hasMap: false,
       hasMapPending: false,
-      maps: [],
       ModalDialogClass: Vue.extend(ModalDialog),
       dialogInstance: null,
     }
   },
   computed: {
     configObject () {
-      let config = {
-        vizId: this.vizId,
-        title: this.title,
-        description: this.description,
-        data_sources: [],
-        maps: [],
-      }
-      this.dataSources.forEach(item => {
-        config.data_sources.push(item.configObject)
-      })
-      this.maps.forEach(item => {
-        config.maps.push(item)
-      })
-      return config
+      return this.$store.getters.getConfig
     },
+    vizId: {
+      get () {
+        return this.$store.state.vizId
+    },
+      set (value) {
+        this.$store.dispatch('setVizId', value)
+      }
+    },
+    title: {
+      get () {
+        return this.$store.state.title
+      },
+      set (value) {
+        this.$store.dispatch('setTitle', value)
+      }
+    },
+    description: {
+      get () {
+        return this.$store.state.description
+      },
+      set (value) {
+        this.$store.dispatch('setDescription', value)
+      }
+    },
+    maps () {
+      return this.$store.getters.allMaps
+    },
+    dataSources () {
+      return this.$store.getters.allDataSources
+    }
   },
   methods: {
     onEditMap () {
-      let map = this.maps[0] || {}
-      map.dataLayers = {}
-      for (let ds of this.dataSources) {
-        map.dataLayers[ds.label] = ds.label
+      let map = {}
+      if (this.maps.length > 0) {
+        map.uid = this.maps[0].uid
+        map.initialFindUserLocation = this.maps[0].findUserLocation
+        map.initialSearchForAddress = this.maps[0].searchForAddress
+        map.initialZoomToAddress = this.maps[0].zoomToAddress
+        map.initialPlaceholderText = this.maps[0].placeholderText
+        map.initialShowDataLayer = this.maps[0].showDataLayer
+        map.initialShowZoomControl = this.maps[0].showZoomControl
+        map.initialShowLegend = this.maps[0].showLegend
       }
-      if (this.dialogInstance === null) {
+      map.dataLayers = {}
+      for (let ds in this.dataSources) {
+        let datasource = new this.DataSourceClass({propsData: this.dataSources[ds]})
+        map.dataLayers[datasource.uid] = datasource.label
+      }
         this.dialogInstance = new this.ModalDialogClass({
           propsData: {
             component: MapEditor,
@@ -169,9 +191,6 @@ export default {
         })
         this.dialogInstance.$on('cancel', this.onCancelMap)
         this.dialogInstance.$on('save', this.onSaveMap)
-      } else {
-        this.dialogInstance.properties = map
-      }
       this.dialogInstance.show()
     },
     onAddMap () {
@@ -186,19 +205,31 @@ export default {
         this.hasMap = false
         this.hasMapPending = false
       }
-      this.dialogInstance.$el.remove()
-      this.dialogInstance = null
+      this.$set(this, 'dialogInstance', null)
     },
     onSaveMap (data) {
       if (this.hasMapPending) {
         this.hasMapPending = false
       }
-      this.maps = [Object.assign({}, data)]
+      this.$set(this, 'dialogInstance', null)
+      this.$store.dispatch('updateMap', data)
+    },
+    onSave () {
       this.serializeConfig()
+    },
+    onCancel () {
+
     },
     serializeConfig () {
       if (this.configElem) {
-        this.configElem.value = JSON.stringify(this.configObject)
+        let data = JSON.stringify(this.configObject)
+        this.configElem.value = data
+        let event = new Event('input', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+        })
+        this.configElem.dispatchEvent(event)
       }
     }
   }

@@ -4,7 +4,8 @@
       <list-item
         v-for='item in items'
         :key='item.uid'
-        :initialItem='item'
+        :uid='item.uid'
+        :editor='EditorClass'
         @delete-item='onDeleteItem'
         @change-item='onChangeItem'
       ></list-item>
@@ -21,21 +22,12 @@ import Vue from 'vue'
 import ListItem from './listitem.vue'
 import ModalDialog from '../modaldialog.vue'
 
-let maxUID = 0
-
 export default {
   name: 'list-container',
   components: {
     ListItem,
   },
   props: {
-    /**
-     * An array of items to use in the list
-     */
-    initialItems: {
-      type: Array,
-      default () { return [] }
-    },
     editor: {
       type: Object,
       required: true
@@ -47,14 +39,10 @@ export default {
       ModalDialogClass: Vue.extend(ModalDialog),
       EditorClass: null,
       dialogInstance: null,
-      items: null,
+      items: {},
     }
   },
   methods: {
-    getNextUID () {
-      maxUID++
-      return maxUID
-    },
     createItem () {
       this.currentItem = {}
       this.dialogInstance = new this.ModalDialogClass({
@@ -68,37 +56,34 @@ export default {
       this.dialogInstance.show()
     },
     onDeleteItem (key) {
-      console.log('onDeleteItem', key)
+      let temp = Object.assign({}, this.items)
+      delete temp[key]
+      this.items = temp
     },
     onChangeItem (data) {
-      this.$emit('list-changed', this.serialize())
+      // this.$emit('list-changed', this.serialize())
     },
     onCancelNewItem () {
-      if (this.dialogInstance) {
-        delete this.dialogInstance
-        this.dialogInstance = null
-      }
+      this.$set(this, 'dialogInstance', null)
     },
     onSaveNewItem (data) {
+      this.$store.dispatch('updateDataSource', data)
       let newItem = new this.EditorClass({
         propsData: {
-          uid: this.getNextUID(),
+          uid: data.uid,
           dataSourceType: data.type,
           attributes: Object.assign({}, data.attributes),
           icon: data.icon,
-          clusterPoints: data.cluster_icons,
-          polygonStyle: data.polygon_style,
+          clusterPoints: data.clusterIcons,
+          polygonStyle: data.polygonStyle,
           popover: data.popover,
         }
       })
       let tempObj = {}
       tempObj[newItem.uid] = newItem
       this.items = Object.assign({}, this.items, tempObj)
-      if (this.dialogInstance) {
-        delete this.dialogInstance
-        this.dialogInstance = null
-      }
-      this.$emit('list-changed', this.serialized())
+      this.$set(this, 'dialogInstance', null)
+      this.$emit('list-changed', this.serialize())
     },
     serialize () {
       let serialized = []
@@ -114,11 +99,18 @@ export default {
     this.EditorClass = Vue.extend(this.editor)
     this.items = {}
     this.$on('cancel', this.onCancel)
-    for (let item of this.initialItems) {
-      if (item.uid > maxUID) {
-        maxUID = item.uid
-      }
-      this.items[item.uid] = item
+    for (let item of this.$store.getters.allDataSources) {
+      this.items[item.uid] = new this.EditorClass({
+        propsData: {
+          uid: item.uid,
+          dataSourceType: item.type,
+          attributes: Object.assign({}, item.attributes),
+          icon: item.icon,
+          clusterPoints: item.clusterIcons,
+          polygonStyle: item.polygonStyle,
+          popover: item.popover,
+        }
+      })
     }
   },
 }
