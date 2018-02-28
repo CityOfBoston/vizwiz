@@ -27,7 +27,13 @@ module.exports = {
     },
   },
   module: {
+    loaders: [
+    ],
     rules: [
+      {
+        test: /templayed/,
+        loaders: ['exports-loader?templayed'],
+      },
       {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
