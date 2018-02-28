@@ -4,6 +4,8 @@
       <keep-alive><component
         :is="component"
         v-bind="properties"
+        @keyup.esc="onCancel"
+        @keyup.enter="onSave"
         @cancel="onCancel"
         @save="onSave"
       ></component></keep-alive>
@@ -41,10 +43,12 @@ export default {
     onCancel () {
       this.close()
       this.$emit('cancel')
+      this.$el.remove()
     },
     onSave (data) {
       this.close()
       this.$emit('save', data)
+      this.$el.remove()
     }
   }
 }
