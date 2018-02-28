@@ -12,34 +12,51 @@
     </style>
   </head>
   <body>
-    <div id="visualizationinput" class="uk-container">
-      <textarea id="vizconfig" class="uk-textarea" style="height:100px">
+    <ul uk-tab>
+      <li class="uk-active"><a href="#">VizWiz Form</a></li>
+      <li><a href="#">Config</a></li>
+    </ul>
+    <ul class="uk-switcher">
+      <li>
+        <viz-wiz config="#vizconfig"></viz-wiz>
+      </li>
+      <li>
+        <div id="visualizationinput" class="uk-container">
+          <pre><code id="configoutput"></code></pre>
+          <textarea id="vizconfig" style="visibility:hidden">
 {
-  "vizId": "123456",
-  "title": "What is my title",
-  "description": "This is a description",
-  "data_sources": [
-    {
-      "uid": "SomeRandomValue",
-      "type": "cob-arcgis",
-      "attributes": {
-        "service": "https://services.arcgis.com/sFnw0xNflSi8J0uh/ArcGIS/rest/services/food_trucks_schedule/FeatureServer",
-        "layer": 0
-      },
-      "icon": "https://patterns.boston.gov/icons/Bathrooms@3x.png",
-      "cluster_icons": true,
-      "polygon_style": {
-        "name": "default",
-        "color": "#0C2639",
-        "hover_color": "#FB4D42"
-      },
-      "popover": "<p>I am a popover</p>"
-    }
-  ],
-  "maps": null
+    "vizId": "123456",
+    "title": "What is my title",
+    "description": "This is a description",
+    "dataSources": [
+        {
+            "uid": "SomeRandomValue",
+            "type": "cob-arcgis",
+            "icon": "https://patterns.boston.gov/images/global/icons/mapping/waypoint-charles-blue.svg",
+            "clusterIcons": true,
+            "polygonStyle": "default",
+            "popover": "<p>I am a popover</p>",
+            "attributes": {
+                "service": "https://services.arcgis.com/sFnw0xNflSi8J0uh/ArcGIS/rest/services/food_trucks_schedule/FeatureServer",
+                "layer": 0
+            },
+            "legendLabel": "legendary"
+        }
+    ],
+    "maps": []
 }
-      </textarea>
-      <viz-wiz config="#vizconfig"></viz-wiz>
-    </div>
+          </textarea>
+        </div>
+      </li>
+    </ul>
+    <script type="text/javascript">
+    var vizconfiginput = document.getElementById('vizconfig')
+    var vizconfigoutput = document.getElementById('configoutput')
+    vizconfiginput.addEventListener('input', function (e) {
+      let newhtml = JSON.stringify(JSON.parse(vizconfiginput.value), null, '    ')
+      newhtml = newhtml.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      vizconfigoutput.innerHTML = newhtml
+    })
+    </script>
   </body>
 </html>
