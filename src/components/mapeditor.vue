@@ -87,7 +87,7 @@
               :disabled="!searchForAddress"
             >
               <option disabled value="">Please select one</option>
-              <option :value="key" :key="key" v-for="(key, val) in dataLayers">{{ val }}</option>
+              <option :value="key" :key="key" v-for="(val, key) in dataLayers">{{ val }}</option>
             </select>
           </div>
         </div> <!-- uk-margin -->
@@ -95,9 +95,13 @@
 
       <div class="uk-panel">
         <div class="uk-float-right">
-          <button class="uk-button uk-button-default"
+          <button
+            class="uk-button uk-button-default"
+            type="button"
             @click="onCancel">Cancel</button>
-          <button class="uk-button uk-button-primary"
+          <button
+            class="uk-button uk-button-primary"
+            type="button"
             @click="onSave">Save</button>
         </div>
       </div>
@@ -106,10 +110,16 @@
 </template>
 
 <script>
+import nanoid from 'nanoid'
+
 export default {
 
   name: 'map-editor',
   props: {
+    uid: {
+      type: String,
+      default () { return nanoid() },
+    },
     initialFindUserLocation: {
       type: Boolean,
       default () { return false },
@@ -169,6 +179,7 @@ export default {
   methods: {
     serialize () {
       return {
+        uid: this.uid,
         latitude: '42.347316',
         longitude: '-71.065227',
         zoom: '12',
