@@ -44,6 +44,16 @@
                 >Edit</button>
               </label>
             </div> <!-- uk-margin -->
+
+            <div class="uk-panel">
+              <div class="uk-float-right">
+                <button class="uk-button uk-button-default"
+                  @click="onCancel">Cancel</button>
+                <button class="uk-button uk-button-primary"
+                  @click="onSave">Save</button>
+              </div>
+            </div>
+
           </form>
       </div>
     </div>
@@ -88,14 +98,14 @@ export default {
         for (let dataSource of conf.dataSources) {
           let tempDataSource = {
             uid: dataSource.uid || nanoid(),
-              dataSourceType: dataSource.type,
-              attributes: Object.assign({}, dataSource.attributes),
-              icon: dataSource.icon,
+            dataSourceType: dataSource.type,
+            attributes: Object.assign({}, dataSource.attributes),
+            icon: dataSource.icon,
             clusterPoints: dataSource.clusterIcons,
             polygonStyle: dataSource.polygonStyle.uid || 'default',
-              popover: dataSource.popover,
+            popover: dataSource.popover,
             legendLabel: dataSource.legendLabel
-            }
+          }
           this.$store.dispatch('updateDataSource', tempDataSource)
         }
         if (conf.maps !== null && conf.maps.length > 0) {
@@ -137,7 +147,7 @@ export default {
     vizId: {
       get () {
         return this.$store.state.vizId
-    },
+      },
       set (value) {
         this.$store.dispatch('setVizId', value)
       }
@@ -183,14 +193,14 @@ export default {
         let datasource = new this.DataSourceClass({propsData: this.dataSources[ds]})
         map.dataLayers[datasource.uid] = datasource.label
       }
-        this.dialogInstance = new this.ModalDialogClass({
-          propsData: {
-            component: MapEditor,
-            properties: map
-          }
-        })
-        this.dialogInstance.$on('cancel', this.onCancelMap)
-        this.dialogInstance.$on('save', this.onSaveMap)
+      this.dialogInstance = new this.ModalDialogClass({
+        propsData: {
+          component: MapEditor,
+          properties: map
+        }
+      })
+      this.dialogInstance.$on('cancel', this.onCancelMap)
+      this.dialogInstance.$on('save', this.onSaveMap)
       this.dialogInstance.show()
     },
     onAddMap () {
