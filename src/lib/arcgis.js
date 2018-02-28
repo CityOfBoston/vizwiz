@@ -163,6 +163,38 @@ var ArcGISLayer = class ArcGISLayer {
       return []
     }
   }
+  /**
+   * Gets rows from an ArcGIS service, starting with startRow, and including
+   * numRows. It will return an array of records without the geometry.
+   *
+   * @param      {<type>}   startRow  The starting row to fetch
+   * @param      {<type>}   numRows   The number of rows to fetch
+   * @return     {Promise}  The rows.
+   */
+  async getRows (startRow, numRows) {
+    try {
+      let params = {
+        f: 'json',
+        where: '1=1',
+        outFields: '*',
+        resultOffset: startRow,
+        resultRecordCount: numRows || 1,
+        returnGeometry: false,
+      }
+      return await axios.get(`${this.url}/query`, {params: params}).then(
+        function (response) {
+          let values = []
+          response.data.features.forEach(function (item) {
+            values.push(Object.assign({}, item.attributes))
+          })
+          return values
+        }
+      )
+    } catch (error) {
+      console.error(error)
+      return []
+    }
+  }
 
   /**
    * Gets the distinct values for a field.
