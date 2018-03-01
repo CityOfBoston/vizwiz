@@ -1,14 +1,14 @@
 <template>
   <div uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
-      <keep-alive><component
+      <component
         :is="component"
         v-bind="properties"
         @keyup.esc="onCancel"
         @keyup.enter="onSave"
         @cancel="onCancel"
         @save="onSave"
-      ></component></keep-alive>
+      ></component>
     </div>
   </div>
 </template>

@@ -35,7 +35,6 @@ export default {
   },
   data () {
     return {
-      currentItem: {},
       ModalDialogClass: Vue.extend(ModalDialog),
       EditorClass: null,
       dialogInstance: null,
@@ -44,11 +43,10 @@ export default {
   },
   methods: {
     createItem () {
-      this.currentItem = {}
       this.dialogInstance = new this.ModalDialogClass({
         propsData: {
           component: this.editor,
-          properties: this.currentItem
+          properties: {}
         }
       })
       this.dialogInstance.$on('cancel', this.onCancelNewItem)
@@ -59,12 +57,13 @@ export default {
       let temp = Object.assign({}, this.items)
       delete temp[key]
       this.items = temp
+      this.$store.dispatch('deleteDataSource', key)
     },
     onChangeItem (data) {
-      // this.$emit('list-changed', this.serialize())
+      this.$store.dispatch('updateDataSource', data)
     },
     onCancelNewItem () {
-      this.$set(this, 'dialogInstance', null)
+      this.dialogInstance = null
     },
     onSaveNewItem (data) {
       this.$store.dispatch('updateDataSource', data)
@@ -82,7 +81,7 @@ export default {
       let tempObj = {}
       tempObj[newItem.uid] = newItem
       this.items = Object.assign({}, this.items, tempObj)
-      this.$set(this, 'dialogInstance', null)
+      this.dialogInstance = null
       this.$emit('list-changed', this.serialize())
     },
     serialize () {

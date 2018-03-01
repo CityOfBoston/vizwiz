@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>{{ editMode }} Data Source</h2>
-    <form class="uk-form-stacked" ref="data-source-entry" id="data-source-entry" action="#" method="post" v-on:submit.prevent>
+    <form class="uk-form-stacked" id="data-source-entry" action="#" method="post" v-on:submit.prevent>
       <ul uk-tab>
         <li class="uk-active"><a href="#">Source</a></li>
         <li><a href="#">Style</a></li>
@@ -26,7 +26,7 @@
             </div> <!-- column 1 -->
             <div class="uk-width-1-2"> <!-- column 2 start -->
               <data-connector
-                :validateNow="validateNow"
+                ref="data-connector"
                 :type="selectedDataSourceType"
                 v-bind='selectedAttributes'
                 @change="onDataConnectorChange"
@@ -92,7 +92,7 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="data-popover">Popover Template</label>
                 <div class="uk-form-controls">
-                  <textarea v-model="selectedPopover" class="uk-textarea uk-height-medium" id="data-popover"></textarea>
+                  <textarea v-model="selectedPopover" ref="data-popover" class="uk-textarea uk-height-medium" id="data-popover"></textarea>
                 </div>
               </div> <!-- uk-margin -->
             </div> <!-- column 1 -->
@@ -163,7 +163,6 @@ import nanoid from 'nanoid'
 import store from './store'
 import templayed from 'templayed'
 import { ArcGISLayer } from '../lib/arcgis'
-import { debounce } from 'lodash'
 
 export default {
   name: 'data-source',
@@ -182,7 +181,6 @@ export default {
     },
     dataSourceTypeChoices: {
       type: Object,
-      // default () { return {'CoB ArcGIS': 'cob-arcgis'} }
       default () {
         return store.state.dataSourceTypeChoices
       }
@@ -193,7 +191,6 @@ export default {
     },
     icon: {
       type: String,
-      // default () { return this.iconChoices.default }
       default () { return store.state.iconChoices.default }
     },
     iconChoices: {
@@ -237,7 +234,6 @@ export default {
       sampleRow: 1,
       datasourceConnector: null,
       currentRowCache: {},
-      // samplePopover: '',
     }
   },
   computed: {
@@ -245,7 +241,7 @@ export default {
       return templayed(this.selectedPopover)(this.currentRowCache)
     },
     configObject () {
-      let c = {
+      return {
         uid: this.uid,
         type: this.selectedDataSourceType,
         icon: this.selectedIcon,
@@ -255,7 +251,6 @@ export default {
         attributes: Object.assign({}, this.selectedAttributes),
         legendLabel: this.selectedLegendLabel,
       }
-      return c
     },
     editMode () { return 'Edit' },
     label () {
@@ -277,14 +272,14 @@ export default {
   },
   methods: {
     onInsertField (field) {
-      let textArea = document.getElementById('data-popover')
-      let selStart = textArea.selectionStart
-      let selEnd = textArea.selectionEnd
-      let oldText = this.selectedPopover
-      let before = oldText.substring(0, selStart)
-      let after = oldText.substring(selEnd, this.selectedPopover.length)
-      let newstuff = `${before}{{${field.label}}}${after}`
-      let newEnd = selStart + field.label.length + 4
+      const textArea = this.$refs['data-popover']
+      const selStart = textArea.selectionStart
+      const selEnd = textArea.selectionEnd
+      const oldText = this.selectedPopover
+      const before = oldText.substring(0, selStart)
+      const after = oldText.substring(selEnd, this.selectedPopover.length)
+      const newstuff = `${before}{{${field.label}}}${after}`
+      const newEnd = selStart + field.label.length + 4
       this.selectedPopover = newstuff
 
       // Wait for the next DOM update to set the selection range
@@ -299,8 +294,8 @@ export default {
     onCancel (event) {
       this.$emit('cancel')
     },
-    async onSave (event) {
-      const isValid = await this.isValid()
+    onSave (event) {
+      const isValid = this.isValid()
       if (isValid) {
         this.$emit('save', this.configObject)
       }
@@ -319,42 +314,19 @@ export default {
           }
         }
         this.currentRowCache = newVal
+      }).catch(value => {
+        this.currentRowCache = {}
       })
     },
     onDataConnectorIsValid (value) {
       this.validateNow = false
       this.$emit('dcisvalid', value)
     },
-    samplePopoverGenerator: debounce(function () {
-      return templayed(this.selectedPopover)(this.currentRowCache)
-    }),
-    waitForValidation () {
-      return new Promise(resolve => {
-        if (this.$v.$error || !this.$v.$pending) {
-          return resolve()
-        }
-        let poll = setInterval(() => {
-          if (!this.$v.$pending) {
-            clearInterval(poll)
-            resolve()
-          }
-        }, 200)
-      })
-    },
-    async isValid () {
+    isValid () {
       this.$v.$reset()
       this.$v.$touch()
-      await this.waitForValidation()
-      return Promise.resolve(!this.$v.$error)
+      return !this.$v.$error
     },
-    validateDataConnector () {
-      return new Promise((resolve, reject) => {
-        this.$once('dcisvalid', function (value) {
-          resolve(value)
-        })
-        this.validateNow = true
-      })
-    }
   },
   created () {
     this.selectedDataSourceType = this.dataSourceType
@@ -370,11 +342,12 @@ export default {
     selectedIcon: {required},
     selectedPolygonStyle: {required},
     selectedAttributes: {
-      async isValid (value) {
-        const valid = await this.validateDataConnector()
-        return valid
+      isValid (value) {
+        this.$refs['data-connector'].$v.$reset()
+        this.$refs['data-connector'].$v.$touch()
+        return !this.$refs['data-connector'].$v.$invalid
       }
-    },
+    }
   },
 }
 </script>
@@ -385,10 +358,6 @@ export default {
   z-index:  700;
 }
 .leaflet-pane {
-/*  position: absolute;
-  left: 0;
-  top: 0;
-  */
 }
 .leaflet-popup {
   position: relative;

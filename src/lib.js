@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import vueCustomElement from 'vue-custom-element'
-// import dataFilter from './components/datafilter'
-// import dataConnector from './components/dataconnector'
 import vizwiz from './components/vizwiz'
 import Vuex from 'vuex'
 
@@ -17,12 +15,6 @@ Vue.use(vueCustomElement)
 Vue.use(Vuex)
 
 // Register your component
-// Vue.customElement('data-filter', dataFilter, {
-//   // Additional Options: https://github.com/karol-f/vue-custom-element#options
-// })
-// Vue.customElement('data-connector', dataConnector, {
-//   // Additional Options: https://github.com/karol-f/vue-custom-element#options
-// })
 Vue.customElement('viz-wiz', vizwiz, {
   // Additional Options: https://github.com/karol-f/vue-custom-element#options
 })

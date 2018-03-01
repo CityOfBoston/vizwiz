@@ -85,11 +85,11 @@ var ArcGISService = class ArcGISService {
       let baseUrl = this.baseUrl
       return await axios.get(this.baseUrl, {params: {f: 'json'}}).then(
         function (response) {
-          let layerArray = []
+          let layerMap = {}
           response.data.layers.forEach(item => {
-            layerArray.push(new ArcGISLayer(baseUrl, item.id, item.name))
+            layerMap[item.id] = new ArcGISLayer(baseUrl, item.id, item.name)
           })
-          return layerArray
+          return layerMap
         })
     } catch (error) {
       console.error(error)

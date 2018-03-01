@@ -134,6 +134,11 @@ const store = new Vuex.Store({
     SET_DESCRIPTION: (state, payload) => {
       state.description = payload || ''
     },
+    DELETE_DATASOURCE: (state, payload) => {
+      const newDataSources = Object.assign({}, state.dataSources)
+      delete newDataSources[payload]
+      state.dataSources = newDataSources
+    },
     UPDATE_DATASOURCE: (state, payload) => {
       if (!payload.hasOwnProperty('uid')) {
         payload.uid = nanoid()
@@ -162,6 +167,9 @@ const store = new Vuex.Store({
     },
     setDescription: ({commit}, payload) => {
       commit('SET_DESCRIPTION', payload)
+    },
+    deleteDataSource: ({commit}, payload) => {
+      commit('DELETE_DATASOURCE', payload)
     },
     updateDataSource: ({commit}, payload) => {
       commit('UPDATE_DATASOURCE', payload)
