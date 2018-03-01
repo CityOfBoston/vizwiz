@@ -53,9 +53,8 @@
     var vizconfiginput = document.getElementById('vizconfig')
     var vizconfigoutput = document.getElementById('configoutput')
     vizconfiginput.addEventListener('input', function (e) {
-      let newhtml = JSON.stringify(JSON.parse(vizconfiginput.value), null, '    ')
-      newhtml = newhtml.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      vizconfigoutput.innerHTML = newhtml
+      var newhtml = JSON.stringify(JSON.parse(vizconfiginput.value), null, '    ')
+      vizconfigoutput.innerText = newhtml
     })
     </script>
   </body>
