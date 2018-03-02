@@ -4,6 +4,7 @@ branches:
   only:
   - develop
   - production
+  - poc
 install:
 - npm install
 script:
