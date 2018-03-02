@@ -1,0 +1,27 @@
+language: node_js
+node_js: node
+branches:
+  only:
+  - develop
+  - production
+install:
+- npm install
+script:
+- npm run build
+deploy:
+  provider: s3
+  skip_cleanup: true
+  access_key_id: "$AWS_ACCESS_KEY_ID"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY"
+  bucket: vizwiz.boston.gov
+  acl: public_read
+  region: "$AWS_DEFAULT_REGION"
+  local_dir: public
+  on:
+    branch:
+      - production
+      - poc
+env:
+  global:
+  - secure: WgvJYz3U5blQIKQijN06zp2jSWeWRMgojNZGVMRbW5Yx2lMUWklKWx/3jyR1/vfCpBKAanyGRPRjfUkQkW4pQlmSdWv7nZ4hCiDOujOkZMNrVLu1ybm8bT2Rc5kBowBjhFiJeWslGGnumXPV31EISHuDdYR9zJzlON3cExxqlqkf85aVrV1sWJ8sE4UeUjCbRhmUxUdsSP73JaNVT68Y+xPO4JlIkZGUyWiD/cp9q0eXIeSOnt+Y2yA6VNoEHdg9aiRpEtvaDOAmRNz9HEZUvjX2uwSx3MLAArOi3z7otoK9kDQnq5g7Yl9kjp7Z/sBGb+uooXjM8+qTXf0VEZ5kA2bxtEu4skTEqmQlN81JDsd9+7kVLc1V2Vc6Tn6xClpJlU72IMU6riZORET/QU2mr043coW1ccCmd4HWK8XMxZR98IXIX/vgy1bmsopdZt5aiHS0Z9+HmY/oEP8zK7ISzu1J9K4hOUA/MxNhXcYBxty4Adjc0LhYOUm8TWndfBJH8jwJSZ60iDtVUKIbI2UQrYeetsAQpQzSSZOhntMuwhufIPQenGm6Bu15vDbjtGywqDv8QA8tKKuVvAOOxQurrVNr+EeQNoGaFHWR10coSwXLK6p97YCwEOug2zom7cnsgCpJ7f1etwO0PHg6tv9JYIkF9mLNtX54FV27kBdjplY=
+  - secure: g5UrAJQ9yyrnBmrZB2h1zAK4VmFXzhjjSGmgWomreUby+3aTLcbZd/JKY8+9gH2KEdYG+N7H0p6vkgjfO7I1/5Q5Yh9feNWD7saN28N2Ra6fZ5GTTSIDWFjYgIlG5fXI/4MlwGMZqeV20+LBXBXqCQzjdXB0UemtWEJYPpHt6xijCKtfBze8RIVBXjpEJg3JTiwhfkQm20rEypsUekXpCr+UAQg5hYt3FBFOnF2RREjEX2HFMhEfqX9Jh74SkFXKBSrEiw9jm9KAJTaAEoBjsNZnAES6H+BmWA1MQa9DCC7a+qVbLdwz6N5TZJf/uTtKkBhNc8+/xpu0ZfL2xmYhf2tJussdYxVb26BxLVH8bf5EXMpCx3jhAosYGZ8wnbtboE6UT+uDYjGbRsrqcBSeVmtG/iX5LGDJwRDu0oSbV6dv0EpSuWoEhujILhY/N0IntomBEt9mUS76oB4os4x2vcz43JcNEZh+ow+rZwV4zXYYKjSmTckce5UoSWltcSVFoLn7ADLfZvMxTp247aPnUapmiJz2E3gn6TI1pzk4j8c7sVogL4pKNNNgJOeTU0gjfLnzjyi6cD4pTjsOpmRb1Uf2kiNqDkh67Rdrnmw5g7n/8EERi+CcR7cAsLAywhkhmPLVvQOgd6pS0gc4xilOP9o+Gj6H+CIUg//kRzrl81E=
