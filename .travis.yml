@@ -17,7 +17,7 @@ deploy:
   bucket: vizwiz.boston.gov
   acl: public_read
   region: "$AWS_DEFAULT_REGION"
-  local_dir: public
+  local_dir: dist
   on:
     branch:
     - production
