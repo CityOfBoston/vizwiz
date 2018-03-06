@@ -72,6 +72,7 @@ export default {
       this.$set(this, 'dialogInstance', null)
     },
     onDeleteItem () {
+      this.$store.dispatch('deleteDataSource', this.uid)
       this.$emit('delete-item', this.uid)
     },
     serialize () {

@@ -57,7 +57,6 @@ export default {
       let temp = Object.assign({}, this.items)
       delete temp[key]
       this.items = temp
-      this.$store.dispatch('deleteDataSource', key)
     },
     onChangeItem (data) {
       this.$store.dispatch('updateDataSource', data)
@@ -82,13 +81,14 @@ export default {
       tempObj[newItem.uid] = newItem
       this.items = Object.assign({}, this.items, tempObj)
       this.dialogInstance = null
-      this.$emit('list-changed', this.serialize())
+      this.$emit('list-changed')
     },
     serialize () {
       let serialized = []
       for (let item in this.items) {
         serialized.push(this.items[item].configObject)
       }
+
       return serialized
     }
   },
