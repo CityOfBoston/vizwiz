@@ -136,6 +136,10 @@ const store = new Vuex.Store({
     },
     DELETE_DATASOURCE: (state, payload) => {
       const newDataSources = Object.assign({}, state.dataSources)
+      const index = state.dataSourceList.findIndex(dataSource => dataSource === payload)
+      if (index > -1) {
+        state.dataSourceList.splice(index, 1)
+      }
       delete newDataSources[payload]
       state.dataSources = newDataSources
     },
