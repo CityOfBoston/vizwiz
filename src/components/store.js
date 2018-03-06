@@ -57,6 +57,13 @@ const store = new Vuex.Store({
     polygonStyleChoices: {
       'Default Style': 'default',
     },
+    defaultConfig: {
+      vizId: '',
+      title: '',
+      description: '',
+      dataSources: [],
+      maps: [],
+    },
   },
   getters: {
     allDataSources: state => {
@@ -73,6 +80,9 @@ const store = new Vuex.Store({
     },
     getPolygonStyleById: (state) => (uid) => {
       return state.polygonStyles[uid]
+    },
+    getDefaultConfig: (state) => {
+      return state.defaultConfig
     },
     getConfig: (state, getters) => {
       let config = {

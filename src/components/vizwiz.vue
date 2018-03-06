@@ -88,10 +88,11 @@ export default {
     },
   },
   created () {
+    const defaultConfig = this.$store.getters.getDefaultConfig
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
-        let conf = JSON.parse(this.configElem.value)
+        let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
         this.$store.dispatch('setVizId', conf.vizId)
         this.$store.dispatch('setTitle', conf.title)
         this.$store.dispatch('setDescription', conf.description)
@@ -215,13 +216,13 @@ export default {
         this.hasMap = false
         this.hasMapPending = false
       }
-      this.$set(this, 'dialogInstance', null)
+      this.dialogInstance = null
     },
     onSaveMap (data) {
       if (this.hasMapPending) {
         this.hasMapPending = false
       }
-      this.$set(this, 'dialogInstance', null)
+      this.dialogInstance = null
       this.$store.dispatch('updateMap', data)
     },
     onSave () {
