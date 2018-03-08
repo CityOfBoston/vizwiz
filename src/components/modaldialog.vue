@@ -38,7 +38,11 @@ export default {
     },
     close () {
       let modal = UIKit.modal(this.$el)
+      let htmlElem = document.getElementsByTagName('html')[0]
       modal.hide()
+      // For some reason this class is getting left behind. It might be a bug
+      // in UIKit or the way I'm doing closing it. This removes the class.
+      htmlElem.className = htmlElem.className.replace(/(?:^|\s)uk-modal-page(?!\S)/g, '')
     },
     onCancel () {
       this.close()
