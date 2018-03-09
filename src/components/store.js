@@ -126,7 +126,7 @@ const store = new Vuex.Store({
         searchForAddress: map.searchForAddress,
         zoomToAddress: map.zoomToAddress,
         placeholderText: map.placeholderText,
-        showDataLayer: map.showDataLayer,
+        addressSearchPopupDataSourceUid: map.addressSearchPopupDataSourceUid,
       }
     },
   },
