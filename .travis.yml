@@ -4,7 +4,7 @@ branches:
   only:
   - develop
   - production
-  - poc
+  - master
 install:
 - npm install
 script:
@@ -28,7 +28,7 @@ deploy:
   on:
     branch:
     - production
-    - poc
+    - master
 env:
   global:
   - secure: WgvJYz3U5blQIKQijN06zp2jSWeWRMgojNZGVMRbW5Yx2lMUWklKWx/3jyR1/vfCpBKAanyGRPRjfUkQkW4pQlmSdWv7nZ4hCiDOujOkZMNrVLu1ybm8bT2Rc5kBowBjhFiJeWslGGnumXPV31EISHuDdYR9zJzlON3cExxqlqkf85aVrV1sWJ8sE4UeUjCbRhmUxUdsSP73JaNVT68Y+xPO4JlIkZGUyWiD/cp9q0eXIeSOnt+Y2yA6VNoEHdg9aiRpEtvaDOAmRNz9HEZUvjX2uwSx3MLAArOi3z7otoK9kDQnq5g7Yl9kjp7Z/sBGb+uooXjM8+qTXf0VEZ5kA2bxtEu4skTEqmQlN81JDsd9+7kVLc1V2Vc6Tn6xClpJlU72IMU6riZORET/QU2mr043coW1ccCmd4HWK8XMxZR98IXIX/vgy1bmsopdZt5aiHS0Z9+HmY/oEP8zK7ISzu1J9K4hOUA/MxNhXcYBxty4Adjc0LhYOUm8TWndfBJH8jwJSZ60iDtVUKIbI2UQrYeetsAQpQzSSZOhntMuwhufIPQenGm6Bu15vDbjtGywqDv8QA8tKKuVvAOOxQurrVNr+EeQNoGaFHWR10coSwXLK6p97YCwEOug2zom7cnsgCpJ7f1etwO0PHg6tv9JYIkF9mLNtX54FV27kBdjplY=
