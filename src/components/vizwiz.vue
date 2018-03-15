@@ -122,7 +122,7 @@ export default {
               searchForAddress: item.searchForAddress,
               zoomToAddress: item.zoomToAddress,
               placeholderText: item.placeholderText,
-              showDataLayer: item.showDataLayer || this.$store.getters.allDataSources[0],
+              addressSearchPopupDataSourceUid: item.addressSearchPopupDataSourceUid || this.$store.getters.allDataSources[0],
             }
             this.$store.dispatch('updateMap', tempMap)
           }
@@ -185,7 +185,7 @@ export default {
         map.initialSearchForAddress = this.maps[0].searchForAddress
         map.initialZoomToAddress = this.maps[0].zoomToAddress
         map.initialPlaceholderText = this.maps[0].placeholderText
-        map.initialShowDataLayer = this.maps[0].showDataLayer
+        map.initialShowDataLayer = this.maps[0].addressSearchPopupDataSourceUid
         map.initialShowZoomControl = this.maps[0].showZoomControl
         map.initialShowLegend = this.maps[0].showLegend
       }

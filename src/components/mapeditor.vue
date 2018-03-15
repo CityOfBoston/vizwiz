@@ -81,7 +81,7 @@
           <label class="uk-form-label" for="data-show-layer">Show data from layer</label>
           <div class="uk-form-controls">
             <select
-              v-model="showDataLayer"
+              v-model="addressSearchPopupDataSourceUid"
               class="uk-select"
               id="data-show-layer"
               :disabled="!searchForAddress"
@@ -159,7 +159,7 @@ export default {
       searchForAddress: false,
       zoomToAddress: false,
       placeholderText: 'Search for an address...',
-      showDataLayer: '',
+      addressSearchPopupDataSourceUid: '',
       showZoomControl: false,
       showLegend: false,
     }
@@ -169,11 +169,11 @@ export default {
     this.searchForAddress = this.initialSearchForAddress
     this.zoomToAddress = this.initialZoomToAddress
     this.placeholderText = this.initialPlaceholderText
-    this.showDataLayer = this.initialShowDataLayer
+    this.addressSearchPopupDataSourceUid = this.initialShowDataLayer
     this.showZoomControl = this.initialShowZoomControl
     this.showLegend = this.initialShowLegend
-    if (this.showDataLayer === '') {
-      this.showDataLayer = Object.keys(this.dataLayers)[0]
+    if (this.addressSearchPopupDataSourceUid === '') {
+      this.addressSearchPopupDataSourceUid = Object.keys(this.dataLayers)[0]
     }
   },
   methods: {
@@ -189,7 +189,7 @@ export default {
         searchForAddress: this.searchForAddress,
         zoomToAddress: this.zoomToAddress,
         placeholderText: this.placeholderText,
-        showDataLayer: this.showDataLayer,
+        addressSearchPopupDataSourceUid: this.addressSearchPopupDataSourceUid,
       }
     },
     onSave (data) {
@@ -200,11 +200,11 @@ export default {
       this.searchForAddress = this.initialSearchForAddress
       this.zoomToAddress = this.initialZoomToAddress
       this.placeholderText = this.initialPlaceholderText
-      this.showDataLayer = this.initialShowDataLayer
+      this.addressSearchPopupDataSourceUid = this.initialShowDataLayer
       this.showZoomControl = this.initialShowZoomControl
       this.showLegend = this.initialShowLegend
-      if (this.showDataLayer === '') {
-        this.showDataLayer = Object.keys(this.dataLayers)[0]
+      if (this.addressSearchPopupDataSourceUid === '') {
+        this.addressSearchPopupDataSourceUid = Object.keys(this.dataLayers)[0]
       }
       this.$emit('cancel')
     },
