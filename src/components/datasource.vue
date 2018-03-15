@@ -92,7 +92,7 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="data-popover">Popover Template</label>
                 <div class="uk-form-controls">
-                  <textarea v-model="selectedPopover" ref="data-popover" class="uk-textarea uk-height-medium" id="data-popover"></textarea>
+                  <wysiwyg v-model="selectedPopover" ref="data-popover" id="data-popover"></wysiwyg>
                 </div>
               </div> <!-- uk-margin -->
             </div> <!-- column 1 -->
@@ -156,6 +156,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import DataConnector from './dataconnector.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
@@ -163,6 +164,23 @@ import nanoid from 'nanoid'
 import store from './store'
 import templayed from 'templayed'
 import { ArcGISLayer } from '../lib/arcgis'
+import wysiwyg from 'vue-wysiwyg'
+
+require('vue-wysiwyg/dist/vueWysiwyg.css')
+
+Vue.use(wysiwyg, {
+  hideModules: {
+    underline: true,
+    image: true,
+    table: true,
+    headings: true,
+    code: true,
+    removeFormat: true,
+    orderedList: true,
+    unorderedList: true,
+  },
+  maxHeight: '300px',
+})
 
 export default {
   name: 'data-source',
@@ -273,20 +291,7 @@ export default {
   methods: {
     onInsertField (field) {
       const textArea = this.$refs['data-popover']
-      const selStart = textArea.selectionStart
-      const selEnd = textArea.selectionEnd
-      const oldText = this.selectedPopover
-      const before = oldText.substring(0, selStart)
-      const after = oldText.substring(selEnd, this.selectedPopover.length)
-      const newstuff = `${before}{{${field.label}}}${after}`
-      const newEnd = selStart + field.label.length + 4
-      this.selectedPopover = newstuff
-
-      // Wait for the next DOM update to set the selection range
-      this.$nextTick(function () {
-        textArea.setSelectionRange(newEnd, newEnd)
-        textArea.focus()
-      })
+      textArea.exec('insertHTML', `{{${field.label}}}`)
     },
     onDataSourceTypeChange (event) {
       console.log('onDataSourceTypeChange')
