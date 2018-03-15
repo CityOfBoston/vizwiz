@@ -48,10 +48,25 @@ const store = new Vuex.Store({
       'CoB ArcGIS': 'cob-arcgis'
     },
     polygonStyles: {
+      'Charles Blue': {
+        uid: 'charles-blue',
+        color: '#091F2F',
+        hoverColor: '#9CA5AB',
+      },
       'default': {
         uid: 'default',
         color: '#0C2639',
         hoverColor: '#FB4D42',
+      },
+      'Freedom Trail Red': {
+        uid: 'freedom-trail-red',
+        color: '#FB4D42',
+        hoverColor: '#FDB8B3',
+      },
+      'Optimistic Blue': {
+        uid: 'optimistic-blue',
+        color: '#288BE4',
+        hoverColor: '#A9D1F4',
       },
     },
     polygonStyleChoices: {
