@@ -19,14 +19,12 @@
                 </textarea>
               </div>
             </div>
-            <fieldset class="uk-fieldset">
-              <legend class="uk-legend">Data</legend>
-              <list-container
-                v-bind:initial-items="dataSources"
-                v-bind:editor="dsEditor"
-                @list-changed="serializeConfig"
-              ></list-container>
-            </fieldset>
+            <editable-list
+              :default-items="dataSources"
+              :editor="dsEditor"
+              namespace="$_datasources"
+              title="Data Sources"
+            />
             <div class="uk-margin">
               <label class="uk-form-label" for="data-map">
                 <input
@@ -63,7 +61,7 @@
 
 <script>
 import Vue from 'vue'
-import ListContainer from './list/listcontainer.vue'
+import EditableList from 'modules/editablelist'
 import DataSource from './datasource.vue'
 import ModalDialog from './modaldialog.vue'
 import MapEditor from './mapeditor.vue'
@@ -75,7 +73,7 @@ require('../../node_modules/uikit/dist/css/uikit.min.css')
 export default {
   name: 'viz-wiz',
   components: {
-    ListContainer,
+    EditableList
   },
   store,
   props: {
