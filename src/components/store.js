@@ -97,7 +97,7 @@ const store = new Vuex.Store({
       return state.polygonStyles[uid]
     },
     getDefaultConfig: (state) => {
-      return state.defaultConfig
+      return Object.assign({}, state.defaultConfig)
     },
     getConfig: (state, getters) => {
       let config = {
