@@ -15,6 +15,9 @@ const getters = {
   allItems: state => {
     return state.itemsList.map(uid => state.items[uid])
   },
+  allIds: state => {
+    return state.itemsList.slice()
+  },
   getItem: (state) => (uid) => {
     return state.items[uid]
   },
