@@ -6,7 +6,7 @@
         <select
           v-model='selectedService'
           id="id-services"
-          v-if='services'
+          v-show="services.length > 0"
           v-on:change="onServiceChange"
           :class="['uk-select', { 'uk-form-danger': $v.selectedService.$error }]">
             <option disabled value="">Please select one</option>
@@ -14,17 +14,16 @@
               v-for="item in services"
               :value="item.url">{{ item.name }}</option>
         </select>
-        <span v-else>Loading&hellip;</span>
+        <div v-show='services.length === 0'><div uk-spinner></div>&ensp;Loading&hellip;</div>
         <span class="uk-text-danger" v-if="$v.selectedService.$error">Please select a service.</span>
       </div>
     </div>
-    <div class="uk-margin">
+    <div class="uk-margin" v-show="services.length > 0">
       <label for="id-layers" :class="['uk-form-label', { 'uk-text-danger': $v.selectedLayer.$error }]">Available Layers</label>
       <div class="uk-form-controls">
         <select
           v-model="selectedLayer"
           id="id-layers"
-          v-if="layers"
           v-on:change="onLayerChange"
           class="uk-select">
             <option disabled value="">Please select one</option>
@@ -32,7 +31,6 @@
               v-for="item in layers"
               :value="item.id">{{ item.name }}</option>
         </select>
-        <span v-else>Loading...</span>
       </div>
     </div>
   </div>
@@ -133,7 +131,9 @@ export default {
       getServices(this.baseUrl).then(response => {
         this.services = response
         if (this.selectedService === '') {
-          this.updateService(response[0].url)
+          if (this.services.length !== 0) {
+            this.updateService(response[0].url)
+          }
         } else {
           this.updateService(this.selectedService)
         }
