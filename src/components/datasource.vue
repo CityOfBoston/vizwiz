@@ -16,7 +16,7 @@
                 <label class="uk-form-label" for="data-source-type">Type</label>
                 <div class="uk-form-controls">
                   <select
-                    v-model="selectedDataSourceType"
+                    v-model="dataSourceType"
                     class="uk-select" id="data-source-type"
                   >
                     <option :value="key" :key="key" v-for="(key, val) in dataSourceTypeChoices">{{ val }}</option>
@@ -322,8 +322,8 @@ export default {
       } else {
         for (let prop in this.attributes) {
           attrs.push(`${prop}: ${this.attributes[prop]}`)
+        }
       }
-    }
       return `${this.dataSourceType}: ${attrs.join(', ')}`
     },
 
@@ -375,10 +375,6 @@ export default {
       }).catch(value => {
         this.currentRowCache = {}
       })
-    },
-    onDataConnectorIsValid (value) {
-      this.validateNow = false
-      this.$emit('dcisvalid', value)
     },
     isValid () {
       this.$v.$reset()
