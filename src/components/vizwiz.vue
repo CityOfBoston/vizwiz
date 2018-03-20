@@ -85,7 +85,7 @@ export default {
       default () { return '' }
     },
   },
-  created () {
+  mounted () {
     const defaultConfig = this.$store.getters.getDefaultConfig
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
@@ -105,7 +105,7 @@ export default {
             popover: dataSource.popover,
             legendLabel: dataSource.legendLabel
           }
-          this.$store.dispatch('updateDataSource', tempDataSource)
+          this.$store.dispatch('$_datasources/updateItem', tempDataSource)
         }
         if (conf.maps !== null && conf.maps.length > 0) {
           this.hasMap = true
@@ -171,7 +171,11 @@ export default {
       return this.$store.getters.allMaps
     },
     dataSources () {
-      return this.$store.getters.allDataSources
+      if (this.$store.getters.hasOwnProperty('$_datasources/allItems')) {
+        return this.$store.$_datasources.getters.allItems
+      } else {
+        return []
+      }
     }
   },
   methods: {

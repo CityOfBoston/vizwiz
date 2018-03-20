@@ -29,14 +29,6 @@ const store = new Vuex.Store({
      */
     description: '',
     /**
-     * An map of data sources, keyed by the uid, to use in the visualization
-     */
-    dataSources: {}, // map by uid
-    /**
-     * UID of each of the dataSources, for ordering
-     */
-    dataSourceList: [],
-    /**
      * An map of maps, keyed by the uid, to use in the visualization
      */
     maps: {}, // map by uid
@@ -90,14 +82,8 @@ const store = new Vuex.Store({
     },
   },
   getters: {
-    allDataSources: state => {
-      return state.dataSourceList.map(dataSourceId => state.dataSources[dataSourceId])
-    },
     allMaps: state => {
       return state.mapList.map(mapId => state.maps[mapId])
-    },
-    getDataSourceById: (state) => (uid) => {
-      return state.dataSources[uid]
     },
     getMapById: (state) => (uid) => {
       return state.maps[uid]
@@ -116,7 +102,8 @@ const store = new Vuex.Store({
         dataSources: [],
         maps: [],
       }
-      state.dataSourceList.forEach(uid => {
+      const dataSources = getters['$_datasources/allIds']
+      dataSources.forEach(uid => {
         config.dataSources.push(getters.getDataSourceConfig(uid))
       })
       state.mapList.forEach(uid => {
@@ -124,8 +111,8 @@ const store = new Vuex.Store({
       })
       return config
     },
-    getDataSourceConfig: (state) => (uid) => {
-      let datasource = state.dataSources[uid]
+    getDataSourceConfig: (state, getters) => (uid) => {
+      const datasource = getters['$_datasources/getItem'](uid)
       return {
         uid: datasource.uid,
         type: datasource.dataSourceType,
@@ -138,7 +125,7 @@ const store = new Vuex.Store({
       }
     },
     getMapConfig: (state) => (uid) => {
-      let map = state.maps[uid]
+      const map = state.maps[uid]
       return {
         uid: map.uid,
         latitude: 42.347316,
