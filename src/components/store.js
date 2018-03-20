@@ -6,6 +6,15 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   strict: true,
+  modules: {
+    /**
+     * `$_datasources` is registered when the editiable list module is instantiated.
+     * That module uses the `$_datasources` namespace to manage those objects.
+     *
+     * Since there are references to it in methods below, and not a reference to it
+     * here, that's where it comes from.
+     */
+  },
   state: {
     /**
      * The vizualization ID to include in event triggering
