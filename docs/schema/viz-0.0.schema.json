@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://cityofboston.github.io/vizwiz/schemas/viz-0.0.schema.json#",
+  "type": "object",
+  "description": "Development version of the VizWiz config JSON",
+  "additionalProperties": false,
+  "properties": {
+    "vizId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "dataSources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/dataSource"
+      }
+    },
+    "maps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/map"
+      }
+    }
+  },
+  "definitions": {
+    "dataSource": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "cob-arcgis"
+          ]
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "service": {
+              "type": "string"
+            },
+            "layer": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "icon": {
+          "type": "string"
+        },
+        "clusterIcons": {
+          "type": "boolean"
+        },
+        "polygonStyle": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "color": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "hoverColor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "legendLabel": {
+          "type": "string"
+        },
+        "popover": {
+          "type": "string"
+        }
+      }
+    },
+    "map": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "zoom": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "showZoomControl": {
+          "type": "boolean"
+        },
+        "showLegend": {
+          "type": "boolean"
+        },
+        "findUserLocation": {
+          "type": "boolean"
+        },
+        "searchForAddress": {
+          "type": "boolean"
+        },
+        "zoomToAddress": {
+          "type": "boolean"
+        },
+        "placeholderText": {
+          "type": "string"
+        },
+        "addressSearchPopupDataSourceUid": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
