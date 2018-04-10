@@ -128,8 +128,8 @@ const store = new Vuex.Store({
       const map = state.maps[uid]
       return {
         uid: map.uid,
-        latitude: 42.347316,
-        longitude: -71.065227,
+        latitude: 42.32,
+        longitude: -71.1284,
         zoom: 12,
         showZoomControl: map.showZoomControl,
         showLegend: map.showLegend,
