@@ -20,7 +20,7 @@
               </div>
             </div>
             <editable-list
-              :default-items="dataSources"
+              :default-items="dataSources()"
               :editor="dsEditor"
               namespace="$_datasources"
               title="Data Sources"
@@ -170,13 +170,6 @@ export default {
     maps () {
       return this.$store.getters.allMaps
     },
-    dataSources () {
-      if (this.$store.getters.hasOwnProperty('$_datasources/allItems')) {
-        return this.$store.$_datasources.getters.allItems
-      } else {
-        return []
-      }
-    }
   },
   methods: {
     onEditMap () {
@@ -192,7 +185,7 @@ export default {
         map.initialShowLegend = this.maps[0].showLegend
       }
       map.dataLayers = {}
-      for (let ds in this.dataSources) {
+      for (let ds in this.dataSources()) {
         let datasource = new this.DataSourceClass({propsData: this.dataSources[ds]})
         map.dataLayers[datasource.uid] = datasource.label
       }
@@ -232,6 +225,13 @@ export default {
     },
     onCancel () {
 
+    },
+    dataSources () {
+      if (this.$store.getters.hasOwnProperty('$_datasources/allItems')) {
+        return this.$store.getters['$_datasources/allItems']
+      } else {
+        return []
+      }
     },
     serializeConfig () {
       if (this.configElem) {
