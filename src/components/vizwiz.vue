@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="uk-container uk-width-1-2">
+    <div class="uk-container">
         <div class="uk-panel">
           <h2>Add Visualization</h2>
 
