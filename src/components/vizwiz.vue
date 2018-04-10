@@ -185,8 +185,8 @@ export default {
         map.initialShowLegend = this.maps[0].showLegend
       }
       map.dataLayers = {}
-      for (let ds in this.dataSources()) {
-        let datasource = new this.DataSourceClass({propsData: this.dataSources[ds]})
+      for (let ds of this.dataSources()) {
+        let datasource = new this.DataSourceClass({propsData: ds})
         map.dataLayers[datasource.uid] = datasource.label
       }
       this.dialogInstance = new this.ModalDialogClass({
