@@ -43,6 +43,24 @@
               </label>
             </div> <!-- uk-margin -->
 
+            <div class="uk-margin">
+              <label class="uk-form-label" for="data-filter">
+                <input
+                  id="data-filter"
+                  v-model="hasFilter"
+                  class="uk-checkbox"
+                  type="checkbox"
+                  @change="onAddFilter"
+                >
+                &ensp;Include Filter
+                <button
+                  class="uk-button uk-button-primary uk-button-small uk-margin-left"
+                  v-if="hasFilter"
+                  @click="onEditFilter"
+                >Edit</button>
+              </label>
+            </div> <!-- uk-margin -->
+
             <div class="uk-panel">
               <div class="uk-float-right">
                 <button class="uk-button uk-button-default"
@@ -63,6 +81,7 @@
 import Vue from 'vue'
 import EditableList from 'modules/editablelist'
 import DataSource from './datasource.vue'
+import FilterEditor from './filtereditor.vue'
 import ModalDialog from './modaldialog.vue'
 import MapEditor from './mapeditor.vue'
 import store from './store'
@@ -107,7 +126,7 @@ export default {
           }
           this.$store.dispatch('$_datasources/updateItem', tempDataSource)
         }
-        if (conf.maps !== null && conf.maps.length > 0) {
+        if (conf.hasOwnProperty('maps') && conf.maps !== null && conf.maps.length > 0) {
           this.hasMap = true
           for (let item of conf.maps) {
             let tempMap = {
@@ -125,6 +144,13 @@ export default {
             this.$store.dispatch('updateMap', tempMap)
           }
         }
+        if (conf.hasOwnProperty('filters') && conf.filters !== null && conf.filters.length > 0) {
+          this.hasFilter = true
+          for (let item of conf.filters) {
+            // Do storage stuff here
+            console.log(item)
+          }
+        }
       }
     }
   },
@@ -134,7 +160,9 @@ export default {
       dsEditor: DataSource,
       DataSourceClass: Vue.extend(DataSource),
       hasMap: false,
+      hasFilter: false,
       hasMapPending: false,
+      hasFilterPending: false,
       ModalDialogClass: Vue.extend(ModalDialog),
       dialogInstance: null,
     }
@@ -219,6 +247,41 @@ export default {
       }
       this.dialogInstance = null
       this.$store.dispatch('updateMap', data)
+    },
+    onEditFilter () {
+      let filter = {
+        dataSources: []
+      }
+      for (let ds in this.dataSources()) {
+        let datasource = new this.DataSourceClass({propsData: this.dataSources()[ds]})
+        filter.dataSources.push(datasource)
+      }
+      this.dialogInstance = new this.ModalDialogClass({
+        propsData: {
+          component: FilterEditor,
+          properties: filter
+        }
+      })
+      this.dialogInstance.$on('cancel', this.onCancelFilter)
+      this.dialogInstance.$on('save', this.onSaveFilter)
+      this.dialogInstance.show()
+    },
+    onAddFilter () {
+      if (this.hasFilter) {
+        // They just clicked on it, so if they cancel, we want to reset the value
+        this.hasFilterPending = true
+        this.onEditFilter()
+      }
+    },
+    onCancelFilter () {
+      if (this.hasFilterPending) {
+        this.hasFilter = false
+        this.hasFilterPending = false
+      }
+      this.dialogInstance = null
+    },
+    onSaveFilter (data) {
+      console.log('onSaveFilter', data)
     },
     onSave () {
       this.serializeConfig()
