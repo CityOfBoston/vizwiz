@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "https://cityofboston.github.io/vizwiz/schemas/viz-0.0.schema.json#",
   "type": "object",
+  "title": "VizWiz v0.0",
   "description": "Development version of the VizWiz config JSON",
   "additionalProperties": false,
   "properties": {
