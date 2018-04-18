@@ -5,7 +5,7 @@
           <h2>Add Visualization</h2>
 
           <form class="uk-form-stacked" action="#" method="post" v-on:submit.prevent>
-            <input type="hidden" name="vizid" v-model="vizId">
+            <input type="hidden" name="vizid" v-model="uid">
             <div class="uk-margin">
               <label for="title" class="uk-form-label">Title</label>
               <div class="uk-form-controls">
@@ -91,19 +91,24 @@ export default {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
         let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
-        this.$store.dispatch('setVizId', conf.vizId)
+        this.$store.dispatch('setUid', conf.uid)
         this.$store.dispatch('setTitle', conf.title)
         this.$store.dispatch('setDescription', conf.description)
         for (let dataSource of conf.dataSources) {
+          let dataSourceType = dataSource.type
+          let isCobArcGis = dataSource.data.service.indexOf('sFnw0xNflSi8J0uh') !== -1
+          if (dataSource.type === 'arcgis' && isCobArcGis) {
+            dataSourceType = 'cob-arcgis'
+          }
           let tempDataSource = {
             uid: dataSource.uid || nanoid(),
-            dataSourceType: dataSource.type,
-            attributes: Object.assign({}, dataSource.attributes),
-            icon: dataSource.icon,
-            clusterPoints: dataSource.clusterIcons,
-            polygonStyle: dataSource.polygonStyle.uid || 'default',
-            popover: dataSource.popover,
-            legendLabel: dataSource.legendLabel
+            dataSourceType: dataSourceType,
+            attributes: Object.assign({}, dataSource.data),
+            icon: dataSource.icons.markerUrl,
+            clusterPoints: dataSource.icons.cluster,
+            polygonStyle: dataSource.polygons.style || 'default',
+            popover: dataSource.popupHtmlTemplate,
+            legendLabel: dataSource.legend,
           }
           this.$store.dispatch('$_datasources/updateItem', tempDataSource)
         }
@@ -143,12 +148,12 @@ export default {
     configObject () {
       return this.$store.getters.getConfig
     },
-    vizId: {
+    uid: {
       get () {
-        return this.$store.state.vizId
+        return this.$store.state.uid
       },
       set (value) {
-        this.$store.dispatch('setVizId', value)
+        this.$store.dispatch('setUid', value)
       }
     },
     title: {

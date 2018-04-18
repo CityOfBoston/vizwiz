@@ -19,7 +19,7 @@ const store = new Vuex.Store({
     /**
      * The vizualization ID to include in event triggering
      */
-    vizId: nanoid(),
+    uid: nanoid(),
     /**
      * The title of the visualization
      */
@@ -46,7 +46,7 @@ const store = new Vuex.Store({
       'parking': 'https://patterns.boston.gov/images/global/icons/mapping/parking.svg',
     },
     dataSourceTypeChoices: {
-      'CoB ArcGIS': 'cob-arcgis'
+      'cob-arcgis': 'CoB ArcGIS'
     },
     polygonStyles: {
       'Charles Blue': {
@@ -74,7 +74,7 @@ const store = new Vuex.Store({
       'Default Style': 'default',
     },
     defaultConfig: {
-      vizId: '',
+      uid: '',
       title: '',
       description: '',
       dataSources: [],
@@ -96,7 +96,8 @@ const store = new Vuex.Store({
     },
     getConfig: (state, getters) => {
       let config = {
-        vizId: state.vizId,
+        version: '1.0',
+        uid: state.uid,
         title: state.title,
         description: state.description,
         dataSources: [],
@@ -113,15 +114,25 @@ const store = new Vuex.Store({
     },
     getDataSourceConfig: (state, getters) => (uid) => {
       const datasource = getters['$_datasources/getItem'](uid)
+      let dataSourceType = datasource.dataSourceType
+      if (dataSourceType === 'cob-arcgis') {
+        dataSourceType = 'arcgis'
+      }
       return {
         uid: datasource.uid,
-        type: datasource.dataSourceType,
-        icon: datasource.icon,
-        clusterIcons: datasource.clusterPoints,
-        polygonStyle: state.polygonStyles[datasource.polygonStyle],
-        popover: datasource.popover,
-        attributes: Object.assign({}, datasource.attributes),
-        legendLabel: datasource.legendLabel,
+        icons: {
+          markerUrl: datasource.icon,
+          cluster: datasource.clusterPoints,
+        },
+        polygons: {
+          style: state.polygonStyles[datasource.polygonStyle].uid,
+          color: state.polygonStyles[datasource.polygonStyle].color,
+          hoverColor: state.polygonStyles[datasource.polygonStyle].hoverColor,
+        },
+        type: dataSourceType,
+        popupHtmlTemplate: datasource.popover,
+        data: Object.assign({}, datasource.attributes),
+        legend: datasource.legendLabel,
       }
     },
     getMapConfig: (state) => (uid) => {
@@ -142,11 +153,11 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
-    SET_VIZID: (state, payload) => {
+    SET_UID: (state, payload) => {
       if (payload) {
-        state.vizId = payload
+        state.uid = payload
       } else {
-        state.vizId = nanoid()
+        state.uid = nanoid()
       }
     },
     SET_TITLE: (state, payload) => {
@@ -184,8 +195,8 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    setVizId: ({commit}, payload) => {
-      commit('SET_VIZID', payload)
+    setUid: ({commit}, payload) => {
+      commit('SET_UID', payload)
     },
     setTitle: ({commit}, payload) => {
       commit('SET_TITLE', payload)

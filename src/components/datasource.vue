@@ -19,7 +19,7 @@
                     v-model="dataSourceType"
                     class="uk-select" id="data-source-type"
                   >
-                    <option :value="key" :key="key" v-for="(key, val) in dataSourceTypeChoices">{{ val }}</option>
+                    <option :value="val" :key="key" v-for="(key, val) in dataSourceTypeChoices">{{ key }}</option>
                   </select>
                 </div>
               </div>
@@ -391,7 +391,7 @@ export default {
     } else {
       // this is a new data source. Populate everything from defaults
       this.editMode = 'Add New'
-      this.dataSourceType = store.state.dataSourceTypeChoices['CoB ArcGIS']
+      this.dataSourceType = 'cob-arcgis'
       this.attributes = {}
       this.icon = store.state.iconChoices.default
       this.clusterPoints = true
