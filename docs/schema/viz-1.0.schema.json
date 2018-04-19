@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "https://cityofboston.github.io/vizwiz/schemas/viz-1.0.schema.json#",
   "type": "object",
+  "title": "VizWiz v1.0",
   "description": "Configuration for a `<cob-viz>` web component to generate a map from a number of data sources.",
   "properties": {
     "version": {
