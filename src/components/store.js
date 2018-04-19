@@ -137,19 +137,27 @@ const store = new Vuex.Store({
     },
     getMapConfig: (state) => (uid) => {
       const map = state.maps[uid]
-      return {
+      let mapConfig = {
         uid: map.uid,
+        title: '',
+        instructionsHtml: '',
         latitude: 42.32,
         longitude: -71.1284,
         zoom: 12,
         showZoomControl: map.showZoomControl,
         showLegend: map.showLegend,
-        findUserLocation: map.findUserLocation,
-        searchForAddress: map.searchForAddress,
-        zoomToAddress: map.zoomToAddress,
-        placeholderText: map.placeholderText,
-        addressSearchPopupDataSourceUid: map.addressSearchPopupDataSourceUid,
+        showUserLocation: map.findUserLocation,
+        addressSearch: null,
       }
+      if (map.searchForAddress) {
+        mapConfig.addressSearch = {
+          title: '',
+          placeholder: map.placeholderText,
+          zoomToResult: map.zoomToAddress,
+          autoPopupDataSourceUid: map.addressSearchPopupDataSourceUid,
+        }
+      }
+      return mapConfig
     },
   },
   mutations: {
@@ -193,6 +201,15 @@ const store = new Vuex.Store({
         state.mapList.push(payload.uid)
       }
     },
+    DELETE_MAP: (state, payload) => {
+      const newMaps = Object.assign({}, state.maps)
+      const index = state.mapList.findIndex(map => map === payload)
+      if (index > -1) {
+        state.mapList.splice(index, 1)
+      }
+      delete newMaps[payload]
+      state.maps = newMaps
+    },
   },
   actions: {
     setUid: ({commit}, payload) => {
@@ -212,7 +229,10 @@ const store = new Vuex.Store({
     },
     updateMap: ({commit}, payload) => {
       commit('UPDATE_MAP', payload)
-    }
+    },
+    deleteMap: ({commit}, payload) => {
+      commit('DELETE_MAP', payload)
+    },
   }
 })
 export default store

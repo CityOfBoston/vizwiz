@@ -116,16 +116,24 @@ export default {
           this.hasMap = true
           for (let item of conf.maps) {
             let tempMap = {
-              latitude: item.latitude || '42.347316',
-              longitude: item.longitude || '-71.065227',
-              zoom: item.zoom || '12',
+              uid: item.uid,
+              latitude: item.latitude || 42.32,
+              longitude: item.longitude || -71.1284,
+              zoom: item.zoom || 12,
               showZoomControl: item.showZoomControl,
               showLegend: item.showLegend,
-              findUserLocation: item.findUserLocation,
-              searchForAddress: item.searchForAddress,
-              zoomToAddress: item.zoomToAddress,
-              placeholderText: item.placeholderText,
-              addressSearchPopupDataSourceUid: item.addressSearchPopupDataSourceUid || this.$store.getters.allDataSources[0],
+              findUserLocation: item.showUserLocation,
+            }
+            if (item.addressSearch !== null) {
+              tempMap.searchForAddress = true
+              tempMap.zoomToAddress = item.addressSearch.zoomToResult
+              tempMap.placeholderText = item.addressSearch.placeholder
+              tempMap.addressSearchPopupDataSourceUid = item.addressSearch.autoPopupDataSourceUid || this.$store.getters.allDataSources[0]
+            } else {
+              tempMap.searchForAddress = false
+              tempMap.zoomToAddress = false
+              tempMap.placeholderText = 'Search for an address...'
+              tempMap.addressSearchPopupDataSourceUid = this.$store.getters.allDataSources[0]
             }
             this.$store.dispatch('updateMap', tempMap)
           }
@@ -209,6 +217,8 @@ export default {
         // They just clicked on it, so if they cancel, we want to reset the value
         this.hasMapPending = true
         this.onEditMap()
+      } else {
+        this.$store.dispatch('deleteMap', this.maps[0].uid)
       }
     },
     onCancelMap (e) {
