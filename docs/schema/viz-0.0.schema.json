@@ -31,6 +31,7 @@
   "definitions": {
     "dataSource": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "uid": {
           "type": "string"
@@ -43,6 +44,7 @@
         },
         "attributes": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "service": {
               "type": "string"
@@ -50,8 +52,7 @@
             "layer": {
               "type": "number"
             }
-          },
-          "additionalProperties": false
+          }
         },
         "icon": {
           "type": "string"
@@ -89,6 +90,7 @@
     },
     "map": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "uid": {
           "type": "string"
