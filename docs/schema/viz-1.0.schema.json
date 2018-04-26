@@ -4,6 +4,7 @@
   "type": "object",
   "title": "VizWiz v1.0",
   "description": "Configuration for a `<cob-viz>` web component to generate a map from a number of data sources.",
+  "additionalProperties": false,
   "properties": {
     "version": {
       "type": "string",
@@ -39,6 +40,7 @@
     "DataSource": {
       "type": "object",
       "description": "Configuration for a feed of geo data. E.g. a specific ArcGIS service layer.",
+      "additionalProperties": false,
       "properties": {
         "uid": {
           "type": "string",
@@ -96,6 +98,7 @@
     },
     "Map": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "uid": {
           "type": "string",
@@ -163,6 +166,7 @@
     },
     "IconStyle": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "markerUrl": {
           "type": "string",
@@ -184,6 +188,7 @@
     },
     "VectorStyle": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "style": {
           "type": "string",
@@ -212,6 +217,7 @@
     },
     "LegendStyle": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "symbol": {
           "type": "string",
@@ -233,6 +239,7 @@
     },
     "AddressSearch": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "title": {
           "type": "string",
@@ -267,6 +274,7 @@
     },
     "ArcGisFeatureService": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
