@@ -22,7 +22,7 @@
             <editable-list
               :default-items="dataSources()"
               :editor="dsEditor"
-              namespace="$_datasources"
+              :namespace="dsNamespace"
               title="Data Sources"
             />
             <div class="uk-margin">
@@ -65,6 +65,7 @@ import EditableList from 'modules/editablelist'
 import DataSource from './datasource.vue'
 import ModalDialog from './modaldialog.vue'
 import MapEditor from './mapeditor.vue'
+import globalStore from './globalstore.js'
 import store from './store'
 import nanoid from 'nanoid'
 
@@ -75,8 +76,12 @@ export default {
   components: {
     EditableList
   },
-  store,
+  store: globalStore,
   props: {
+    id: {
+      type: String,
+      default () { return nanoid() },
+    },
     /**
      * HTML id of the item that contains a JSON config
      */
@@ -85,15 +90,24 @@ export default {
       default () { return '' }
     },
   },
+  created () {
+    if (this.id.length) {
+      this.namespace = this.id
+    } else {
+      this.namespace = nanoid()
+    }
+    this.$store.registerModule(this.namespace, store)
+    this.$store.dispatch(`${this.namespace}/setNamespace`, this.namespace)
+  },
   mounted () {
     const defaultConfig = this.$store.getters.getDefaultConfig
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
         let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
-        this.$store.dispatch('setUid', conf.uid)
-        this.$store.dispatch('setTitle', conf.title)
-        this.$store.dispatch('setDescription', conf.description)
+        this.$store.dispatch(`${this.namespace}/setUid`, conf.uid)
+        this.$store.dispatch(`${this.namespace}/setTitle`, conf.title)
+        this.$store.dispatch(`${this.namespace}/setDescription`, conf.description)
         for (let dataSource of conf.dataSources) {
           let dataSourceType = dataSource.type
           let isCobArcGis = dataSource.data.service.indexOf('sFnw0xNflSi8J0uh') !== -1
@@ -110,7 +124,7 @@ export default {
             popover: dataSource.popupHtmlTemplate,
             legendLabel: dataSource.legend,
           }
-          this.$store.dispatch('$_datasources/updateItem', tempDataSource)
+          this.$store.dispatch(`${this.dsNamespace}/updateItem`, tempDataSource)
         }
         if (conf.maps !== null && conf.maps.length > 0) {
           this.hasMap = true
@@ -128,14 +142,14 @@ export default {
               tempMap.searchForAddress = true
               tempMap.zoomToAddress = item.addressSearch.zoomToResult
               tempMap.placeholderText = item.addressSearch.placeholder
-              tempMap.addressSearchPopupDataSourceUid = item.addressSearch.autoPopupDataSourceUid || this.$store.getters.allDataSources[0]
+              tempMap.addressSearchPopupDataSourceUid = item.addressSearch.autoPopupDataSourceUid || this.$store.getters[`${this.dsNamespace}/allItems`][0]
             } else {
               tempMap.searchForAddress = false
               tempMap.zoomToAddress = false
               tempMap.placeholderText = 'Search for an address...'
-              tempMap.addressSearchPopupDataSourceUid = this.$store.getters.allDataSources[0]
+              tempMap.addressSearchPopupDataSourceUid = this.$store.getters[`${this.dsNamespace}/allItems`][0]
             }
-            this.$store.dispatch('updateMap', tempMap)
+            this.$store.dispatch(`${this.namespace}/updateMap`, tempMap)
           }
         }
       }
@@ -143,6 +157,7 @@ export default {
   },
   data () {
     return {
+      namespace: null,
       configElem: null,
       dsEditor: DataSource,
       DataSourceClass: Vue.extend(DataSource),
@@ -154,34 +169,37 @@ export default {
   },
   computed: {
     configObject () {
-      return this.$store.getters.getConfig
+      return this.$store.getters[`${this.namespace}/getConfig`]
+    },
+    dsNamespace () {
+      return `$${this.namespace}_datasources`
     },
     uid: {
       get () {
-        return this.$store.state.uid
+        return this.$store.getters[`${this.namespace}/uid`]
       },
       set (value) {
-        this.$store.dispatch('setUid', value)
+        this.$store.dispatch(`${this.namespace}/setUid`, value)
       }
     },
     title: {
       get () {
-        return this.$store.state.title
+        return this.$store.getters[`${this.namespace}/getTitle`]
       },
       set (value) {
-        this.$store.dispatch('setTitle', value)
+        this.$store.dispatch(`${this.namespace}/setTitle`, value)
       }
     },
     description: {
       get () {
-        return this.$store.state.description
+        return this.$store.getters[`${this.namespace}/getDescription`]
       },
       set (value) {
-        this.$store.dispatch('setDescription', value)
+        this.$store.dispatch(`${this.namespace}/setDescription`, value)
       }
     },
     maps () {
-      return this.$store.getters.allMaps
+      return this.$store.getters[`${this.namespace}/allMaps`]
     },
   },
   methods: {
@@ -218,7 +236,7 @@ export default {
         this.hasMapPending = true
         this.onEditMap()
       } else {
-        this.$store.dispatch('deleteMap', this.maps[0].uid)
+        this.$store.dispatch(`${this.namespace}/deleteMap`, this.maps[0].uid)
       }
     },
     onCancelMap (e) {
@@ -233,7 +251,7 @@ export default {
         this.hasMapPending = false
       }
       this.dialogInstance = null
-      this.$store.dispatch('updateMap', data)
+      this.$store.dispatch(`${this.namespace}/updateMap`, data)
     },
     onSave () {
       this.serializeConfig()
@@ -242,8 +260,8 @@ export default {
 
     },
     dataSources () {
-      if (this.$store.getters.hasOwnProperty('$_datasources/allItems')) {
-        return this.$store.getters['$_datasources/allItems']
+      if (this.$store.getters.hasOwnProperty(`${this.dsNamespace}/allItems`)) {
+        return this.$store.getters[`${this.dsNamespace}/allItems`]
       } else {
         return []
       }
@@ -259,8 +277,8 @@ export default {
         })
         this.configElem.dispatchEvent(event)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
