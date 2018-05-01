@@ -80,9 +80,11 @@ export default {
     displayItems () {
       let returnArray = []
       this.items.forEach((item) => {
+        item.namespace = this.namespace
         let editor = new this.EditorClass({
           propsData: item
         })
+        editor.namespace = this.namespace
         returnArray.push({uid: item.uid, label: editor.label})
       })
 
@@ -146,7 +148,7 @@ export default {
      * @param      {string}  uid     The uid
      */
     editItem (uid) {
-      let props = {}
+      let props = {namespace: this.namespace}
       if (uid !== null) {
         props = this.getItem(uid)
       }
