@@ -1,88 +1,47 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
 import nanoid from 'nanoid'
 
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
+const store = {
+  namespaced: true,
   strict: true,
-  modules: {
-    /**
-     * `$_datasources` is registered when the editiable list module is instantiated.
-     * That module uses the `$_datasources` namespace to manage those objects.
-     *
-     * Since there are references to it in methods below, and not a reference to it
-     * here, that's where it comes from.
-     */
-  },
-  state: {
-    /**
-     * The vizualization ID to include in event triggering
-     */
-    uid: nanoid(),
-    /**
-     * The title of the visualization
-     */
-    title: '',
-    /**
-     * The description of the visualization
-     */
-    description: '',
-    /**
-     * An map of maps, keyed by the uid, to use in the visualization
-     */
-    maps: {}, // map by uid
-    /**
-     * UID of each of the maps, for ordering
-     */
-    mapList: [],
-    iconChoices: {
-      'bathroom': 'https://patterns.boston.gov/images/global/icons/mapping/bathroom.svg',
-      'default': 'https://patterns.boston.gov/images/global/icons/mapping/waypoint-charles-blue.svg',
-      'food basket': 'https://patterns.boston.gov/images/global/icons/mapping/food-basket.svg',
-      'food truck': 'https://patterns.boston.gov/images/global/icons/mapping/food-truck.svg',
-      'default-red': 'https://patterns.boston.gov/images/global/icons/mapping/waypoint-freedom-red.svg',
-      'no parking': 'https://patterns.boston.gov/images/global/icons/mapping/parking-nope.svg',
-      'parking': 'https://patterns.boston.gov/images/global/icons/mapping/parking.svg',
-    },
-    dataSourceTypeChoices: {
-      'cob-arcgis': 'CoB ArcGIS'
-    },
-    polygonStyles: {
-      'Charles Blue': {
-        uid: 'charles-blue',
-        color: '#091F2F',
-        hoverColor: '#9CA5AB',
-      },
-      'default': {
-        uid: 'default',
-        color: '#0C2639',
-        hoverColor: '#FB4D42',
-      },
-      'Freedom Trail Red': {
-        uid: 'freedom-trail-red',
-        color: '#FB4D42',
-        hoverColor: '#FDB8B3',
-      },
-      'Optimistic Blue': {
-        uid: 'optimistic-blue',
-        color: '#288BE4',
-        hoverColor: '#A9D1F4',
-      },
-    },
-    polygonStyleChoices: {
-      'Default Style': 'default',
-    },
-    defaultConfig: {
-      uid: '',
+  state () {
+    return {
+      /**
+       * The namespace used for this store
+       */
+      namespace: '',
+      /**
+       * The vizualization ID to include in event triggering
+       */
+      uid: nanoid(),
+      /**
+       * The title of the visualization
+       */
       title: '',
+      /**
+       * The description of the visualization
+       */
       description: '',
-      dataSources: [],
-      maps: [],
-    },
+      /**
+       * An map of maps, keyed by the uid, to use in the visualization
+       */
+      maps: {}, // map by uid
+      /**
+       * UID of each of the maps, for ordering
+       */
+      mapList: [],
+    }
   },
   getters: {
-    allMaps: state => {
+    getTitle: (state) => {
+      return state.title
+    },
+    getDescription: (state) => {
+      return state.description
+    },
+    getNamespace: (state) => {
+      return state.namespace
+    },
+    allMaps: (state) => {
       return state.mapList.map(mapId => state.maps[mapId])
     },
     getMapById: (state) => (uid) => {
@@ -91,10 +50,7 @@ const store = new Vuex.Store({
     getPolygonStyleById: (state) => (uid) => {
       return state.polygonStyles[uid]
     },
-    getDefaultConfig: (state) => {
-      return Object.assign({}, state.defaultConfig)
-    },
-    getConfig: (state, getters) => {
+    getConfig: (state, getters, rootState, rootGetters) => {
       let config = {
         version: '1.0',
         uid: state.uid,
@@ -103,7 +59,7 @@ const store = new Vuex.Store({
         dataSources: [],
         maps: [],
       }
-      const dataSources = getters['$_datasources/allIds']
+      const dataSources = rootGetters[`$${getters.getNamespace}_datasources/allIds`]
       dataSources.forEach(uid => {
         config.dataSources.push(getters.getDataSourceConfig(uid))
       })
@@ -112,8 +68,8 @@ const store = new Vuex.Store({
       })
       return config
     },
-    getDataSourceConfig: (state, getters) => (uid) => {
-      const datasource = getters['$_datasources/getItem'](uid)
+    getDataSourceConfig: (state, getters, rootState, rootGetters) => (uid) => {
+      const datasource = rootGetters[`$${getters.getNamespace}_datasources/getItem`](uid)
       let dataSourceType = datasource.dataSourceType
       if (dataSourceType === 'cob-arcgis') {
         dataSourceType = 'arcgis'
@@ -125,9 +81,9 @@ const store = new Vuex.Store({
           cluster: datasource.clusterPoints,
         },
         polygons: {
-          style: state.polygonStyles[datasource.polygonStyle].uid,
-          color: state.polygonStyles[datasource.polygonStyle].color,
-          hoverColor: state.polygonStyles[datasource.polygonStyle].hoverColor,
+          style: rootState.polygonStyles[datasource.polygonStyle].uid,
+          color: rootState.polygonStyles[datasource.polygonStyle].color,
+          hoverColor: rootState.polygonStyles[datasource.polygonStyle].hoverColor,
         },
         type: dataSourceType,
         popupHtmlTemplate: datasource.popover,
@@ -161,6 +117,13 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    SET_NAMESPACE: (state, payload) => {
+      if (payload) {
+        state.namespace = payload
+      } else {
+        state.namespace = nanoid()
+      }
+    },
     SET_UID: (state, payload) => {
       if (payload) {
         state.uid = payload
@@ -174,24 +137,24 @@ const store = new Vuex.Store({
     SET_DESCRIPTION: (state, payload) => {
       state.description = payload || ''
     },
-    DELETE_DATASOURCE: (state, payload) => {
-      const newDataSources = Object.assign({}, state.dataSources)
-      const index = state.dataSourceList.findIndex(dataSource => dataSource === payload)
-      if (index > -1) {
-        state.dataSourceList.splice(index, 1)
-      }
-      delete newDataSources[payload]
-      state.dataSources = newDataSources
-    },
-    UPDATE_DATASOURCE: (state, payload) => {
-      if (!payload.hasOwnProperty('uid')) {
-        payload.uid = nanoid()
-      }
-      state.dataSources = {...state.dataSources, [payload.uid]: payload}
-      if (state.dataSourceList.indexOf(payload.uid) === -1) {
-        state.dataSourceList.push(payload.uid)
-      }
-    },
+    // DELETE_DATASOURCE: (state, payload) => {
+    //   const newDataSources = Object.assign({}, state.dataSources)
+    //   const index = state.dataSourceList.findIndex(dataSource => dataSource === payload)
+    //   if (index > -1) {
+    //     state.dataSourceList.splice(index, 1)
+    //   }
+    //   delete newDataSources[payload]
+    //   state.dataSources = newDataSources
+    // },
+    // UPDATE_DATASOURCE: (state, payload) => {
+    //   if (!payload.hasOwnProperty('uid')) {
+    //     payload.uid = nanoid()
+    //   }
+    //   state.dataSources = {...state.dataSources, [payload.uid]: payload}
+    //   if (state.dataSourceList.indexOf(payload.uid) === -1) {
+    //     state.dataSourceList.push(payload.uid)
+    //   }
+    // },
     UPDATE_MAP: (state, payload) => {
       if (!payload.hasOwnProperty('uid')) {
         payload.uid = nanoid()
@@ -212,6 +175,9 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    setNamespace: ({commit}, payload) => {
+      commit('SET_NAMESPACE', payload)
+    },
     setUid: ({commit}, payload) => {
       commit('SET_UID', payload)
     },
@@ -221,12 +187,12 @@ const store = new Vuex.Store({
     setDescription: ({commit}, payload) => {
       commit('SET_DESCRIPTION', payload)
     },
-    deleteDataSource: ({commit}, payload) => {
-      commit('DELETE_DATASOURCE', payload)
-    },
-    updateDataSource: ({commit}, payload) => {
-      commit('UPDATE_DATASOURCE', payload)
-    },
+    // deleteDataSource: ({commit}, payload) => {
+    //   commit('DELETE_DATASOURCE', payload)
+    // },
+    // updateDataSource: ({commit}, payload) => {
+    //   commit('UPDATE_DATASOURCE', payload)
+    // },
     updateMap: ({commit}, payload) => {
       commit('UPDATE_MAP', payload)
     },
@@ -234,5 +200,5 @@ const store = new Vuex.Store({
       commit('DELETE_MAP', payload)
     },
   }
-})
+}
 export default store
