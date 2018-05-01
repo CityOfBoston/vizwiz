@@ -1,14 +1,16 @@
 import nanoid from 'nanoid'
 
-const state = {
-  /**
-   * An map of the managed items, keyed by the uid
-   */
-  items: {},
-  /**
-   * UID of each of the items, for ordering
-   */
-  itemsList: []
+function state () {
+  return {
+    /**
+     * An map of the managed items, keyed by the uid
+     */
+    items: {},
+    /**
+     * UID of each of the items, for ordering
+     */
+    itemsList: []
+  }
 }
 
 const getters = {
