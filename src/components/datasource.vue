@@ -158,7 +158,7 @@ import DataConnector from './dataconnector.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import nanoid from 'nanoid'
-import store from './store'
+import store from './globalstore'
 import templayed from 'templayed'
 import { ArcGISLayer } from '../lib/arcgis'
 
@@ -169,6 +169,13 @@ export default {
     DataConnector,
   },
   props: {
+    /**
+     * The namespace of the datasource in the store
+     */
+    namespace: {
+      type: String,
+      default () { return '' },
+    },
     /**
      * The `uid` of the datasource to retrieve from the store.
      *
@@ -275,7 +282,7 @@ export default {
      * @return     {Object}  Data source type choices in the format `{label: value}`
      */
     dataSourceTypeChoices () {
-      return store.state.dataSourceTypeChoices
+      return store.getters.getDataSourceTypeChoices
     },
 
     /**
@@ -284,7 +291,7 @@ export default {
      * @return     {object}  Icon choices in the format `{label: value}`
      */
     iconChoices () {
-      return store.state.iconChoices
+      return store.getters.getIconChoices
     },
 
     /**
@@ -315,7 +322,9 @@ export default {
      *
      * @return     {object}  Polygon Style choices in the format `{label: value}`
      */
-    polygonStyleChoices () { return store.state.polygonStyleChoices },
+    polygonStyleChoices () {
+      return store.getters.getPolygonStyleChoices
+    },
 
     /**
      * This renders the popover template with a cached row from the datasource
@@ -378,9 +387,9 @@ export default {
     },
   },
   created () {
-    if (store.getters['$_datasources/allIds'].indexOf(this.uid) !== -1) {
+    if (store.getters[`${this.namespace}/allIds`].indexOf(this.uid) !== -1) {
       // This is not a new data source. Populate everything from the store
-      const ds = store.getters['$_datasources/getItem'](this.uid)
+      const ds = store.getters[`${this.namespace}/getItem`](this.uid)
       this.dataSourceType = ds.dataSourceType
       this.attributes = Object.assign({}, ds.attributes)
       this.icon = ds.icon
@@ -393,7 +402,7 @@ export default {
       this.editMode = 'Add New'
       this.dataSourceType = 'cob-arcgis'
       this.attributes = {}
-      this.icon = store.state.iconChoices.default
+      this.icon = store.getters.getIconChoices.default
       this.clusterPoints = true
       this.polygonStyle = 'default'
       this.popover = ''
