@@ -114,5 +114,14 @@
       "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
       ".*\\.(vue)$": "<rootDir>/node_modules/jest-vue-preprocessor"
     }
+  },
+  "labtest": {
+    "app_name": "vizwiz",
+    "host": "test",
+    "use_ssh_config": true,
+    "test_domain": "digital-test.boston.gov",
+    "code_repo_url": "git@github.com:CityOfBoston/vizwiz.git",
+    "app_build_image": "drydock/u16nodall",
+    "app_build_command": "./bin/app-build"
   }
 }

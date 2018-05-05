@@ -1,0 +1,5 @@
+#!/bin/bash
+
+nvm use 8
+yarn install
+yarn run build
