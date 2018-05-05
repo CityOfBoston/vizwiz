@@ -122,6 +122,6 @@
     "test_domain": "digital-test.boston.gov",
     "code_repo_url": "git@github.com:CityOfBoston/vizwiz.git",
     "app_build_image": "drydock/u16nodall",
-    "app_build_command": "./bin/app-build"
+    "app_build_command": "./build-app"
   }
 }
