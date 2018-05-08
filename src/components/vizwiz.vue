@@ -104,6 +104,9 @@ export default {
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
+        if (this.configElem === undefined || this.configElem.value === undefined) {
+          return
+        }
         let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
         this.$store.dispatch(`${this.namespace}/setUid`, conf.uid)
         this.$store.dispatch(`${this.namespace}/setTitle`, conf.title)
