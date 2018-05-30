@@ -122,6 +122,9 @@
     "test_domain": "digital-test.boston.gov",
     "code_repo_url": "git@github.com:CityOfBoston/vizwiz.git",
     "app_build_image": "drydock/u16nodall",
-    "app_build_command": "./buildapp"
+    "app_build_command": "./buildapp",
+    "environment": [
+      "SECRET_API_KEY=ENC[AQICAHiKPdb9Tw2bL4fBWqJfhZgTUythiqX7JQrHhc0oicus1QF/tvGsrs3pGB9leNIFKEv0AAAAeDB2BgkqhkiG9w0BBwagaTBnAgEAMGIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM9fKloF5nDS4aTGvbAgEQgDUVUen/whYrsIHpZo+bLu25aa95eqzK9aMkz/2/WQZ+XS0NEqurzj+0drzwdNeAj4mvJKg0lg==]"
+    ]
   }
 }
