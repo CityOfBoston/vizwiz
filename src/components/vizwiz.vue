@@ -101,15 +101,16 @@ export default {
   },
   mounted () {
     const defaultConfig = this.$store.getters.getDefaultConfig
+    let conf = {}
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
-        if (this.configElem === undefined || this.configElem === null || this.configElem.value === undefined) {
+        if (this.configElem === undefined || this.configElem === null || this.configElem.value === undefined || this.configElem.value === '') {
           return
         }
         try {
-          let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
-        } catch(error){
+          conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
+        } catch (error) {
           console.error(error)
           return
         }
