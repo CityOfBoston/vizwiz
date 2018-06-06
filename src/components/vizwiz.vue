@@ -105,12 +105,18 @@ export default {
     if (this.config && typeof this.config === 'string') {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
-        if (this.configElem === undefined || this.configElem === null || this.configElem.value === undefined || this.configElem.value === '') {
+        if (this.configElem === undefined || this.configElem === null) {
+          console.log('VizWiz config is null or undefined.')
+          return
+        }
+        if (this.configElem.value === undefined || this.configElem.value === '') {
+          console.log('VizWiz config element %s is "%s".', this.config.slice(1), this.configElem.value)
           return
         }
         try {
           conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
         } catch (error) {
+          console.error('Got an error while processing "%s":', this.configElem.value)
           console.error(error)
           return
         }
