@@ -107,7 +107,12 @@ export default {
         if (this.configElem === undefined || this.configElem === null || this.configElem.value === undefined) {
           return
         }
-        let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
+        try {
+          let conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
+        } catch(error){
+          console.error(error)
+          return
+        }
         this.$store.dispatch(`${this.namespace}/setUid`, conf.uid)
         this.$store.dispatch(`${this.namespace}/setTitle`, conf.title)
         this.$store.dispatch(`${this.namespace}/setDescription`, conf.description)
