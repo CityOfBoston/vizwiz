@@ -68,6 +68,7 @@ import MapEditor from './mapeditor.vue'
 import globalStore from './globalstore.js'
 import store from './store'
 import nanoid from 'nanoid'
+import { awaitSelector } from '../lib/awaitselector'
 
 require('../../node_modules/uikit/dist/css/uikit.min.css')
 
@@ -100,75 +101,7 @@ export default {
     this.$store.dispatch(`${this.namespace}/setNamespace`, this.namespace)
   },
   mounted () {
-    const defaultConfig = this.$store.getters.getDefaultConfig
-    let conf = {}
-    if (this.config && typeof this.config === 'string') {
-      if (this.config[0] === '#') {
-        this.configElem = document.getElementById(this.config.slice(1))
-        if (this.configElem === undefined || this.configElem === null) {
-          console.log('VizWiz config element "%s" is null or undefined.', this.config)
-          return
-        }
-        if (this.configElem.value === undefined || this.configElem.value === '') {
-          console.log('VizWiz config element %s is "%s".', this.config.slice(1), this.configElem.value)
-          return
-        }
-        try {
-          conf = Object.assign(defaultConfig, JSON.parse(this.configElem.value))
-        } catch (error) {
-          console.error('Got an error while processing "%s":', this.configElem.value)
-          console.error(error)
-          return
-        }
-        this.$store.dispatch(`${this.namespace}/setUid`, conf.uid)
-        this.$store.dispatch(`${this.namespace}/setTitle`, conf.title)
-        this.$store.dispatch(`${this.namespace}/setDescription`, conf.description)
-        for (let dataSource of conf.dataSources) {
-          let dataSourceType = dataSource.type
-          let isCobArcGis = dataSource.data.service.indexOf('sFnw0xNflSi8J0uh') !== -1
-          if (dataSource.type === 'arcgis' && isCobArcGis) {
-            dataSourceType = 'cob-arcgis'
-          }
-          let tempDataSource = {
-            uid: dataSource.uid || nanoid(),
-            dataSourceType: dataSourceType,
-            attributes: Object.assign({}, dataSource.data),
-            icon: dataSource.icons.markerUrl,
-            clusterPoints: dataSource.icons.cluster,
-            polygonStyle: dataSource.polygons.style || 'default',
-            popover: dataSource.popupHtmlTemplate,
-            legendLabel: dataSource.legend,
-          }
-          this.$store.dispatch(`${this.dsNamespace}/updateItem`, tempDataSource)
-        }
-        if (conf.maps !== null && conf.maps.length > 0) {
-          this.hasMap = true
-          for (let item of conf.maps) {
-            let tempMap = {
-              uid: item.uid,
-              latitude: item.latitude || 42.32,
-              longitude: item.longitude || -71.1284,
-              zoom: item.zoom || 12,
-              showZoomControl: item.showZoomControl,
-              showLegend: item.showLegend,
-              findUserLocation: item.showUserLocation,
-            }
-            if (item.addressSearch !== null) {
-              tempMap.searchForAddress = true
-              tempMap.zoomToAddress = item.addressSearch.zoomToResult
-              tempMap.placeholderText = item.addressSearch.placeholder
-              tempMap.addressSearchPopupDataSourceUid = item.addressSearch.autoPopupDataSourceUid || this.$store.getters[`${this.dsNamespace}/allItems`][0]
-            } else {
-              tempMap.searchForAddress = false
-              tempMap.zoomToAddress = false
-              tempMap.placeholderText = 'Search for an address...'
-              tempMap.addressSearchPopupDataSourceUid = this.$store.getters[`${this.dsNamespace}/allItems`][0]
-            }
-            this.$store.dispatch(`${this.namespace}/updateMap`, tempMap)
-          }
-        }
-      }
-    }
+    this.loadConfigFromElement()
   },
   data () {
     return {
@@ -280,6 +213,84 @@ export default {
       } else {
         return []
       }
+    },
+    applyConfig (configValue) {
+      let conf = {}
+      try {
+        const defaultConfig = this.$store.getters.getDefaultConfig
+        conf = Object.assign(defaultConfig, JSON.parse(configValue))
+      } catch (error) {
+        console.error('Got an error while processing "%s":', configValue)
+        console.error(error)
+        return false
+      }
+
+      // Set basic elements
+      this.$store.dispatch(`${this.namespace}/setUid`, conf.uid)
+      this.$store.dispatch(`${this.namespace}/setTitle`, conf.title)
+      this.$store.dispatch(`${this.namespace}/setDescription`, conf.description)
+
+      // Set the data sources
+      for (let dataSource of conf.dataSources) {
+        let dataSourceType = dataSource.type
+        let isCobArcGis = dataSource.data.service.indexOf('sFnw0xNflSi8J0uh') !== -1
+        if (dataSource.type === 'arcgis' && isCobArcGis) {
+          dataSourceType = 'cob-arcgis'
+        }
+        let tempDataSource = {
+          uid: dataSource.uid || nanoid(),
+          dataSourceType: dataSourceType,
+          attributes: Object.assign({}, dataSource.data),
+          icon: dataSource.icons.markerUrl,
+          clusterPoints: dataSource.icons.cluster,
+          polygonStyle: dataSource.polygons.style || 'default',
+          popover: dataSource.popupHtmlTemplate,
+          legendLabel: dataSource.legend,
+        }
+        this.$store.dispatch(`${this.dsNamespace}/updateItem`, tempDataSource)
+      }
+
+      // Set the maps
+      if (conf.maps !== null && conf.maps.length > 0) {
+        this.hasMap = true
+        for (let item of conf.maps) {
+          let tempMap = {
+            uid: item.uid,
+            latitude: item.latitude || 42.32,
+            longitude: item.longitude || -71.1284,
+            zoom: item.zoom || 12,
+            showZoomControl: item.showZoomControl,
+            showLegend: item.showLegend,
+            findUserLocation: item.showUserLocation,
+          }
+          if (item.addressSearch !== null) {
+            tempMap.searchForAddress = true
+            tempMap.zoomToAddress = item.addressSearch.zoomToResult
+            tempMap.placeholderText = item.addressSearch.placeholder
+            tempMap.addressSearchPopupDataSourceUid = item.addressSearch.autoPopupDataSourceUid || this.$store.getters[`${this.dsNamespace}/allItems`][0]
+          } else {
+            tempMap.searchForAddress = false
+            tempMap.zoomToAddress = false
+            tempMap.placeholderText = 'Search for an address...'
+            tempMap.addressSearchPopupDataSourceUid = this.$store.getters[`${this.dsNamespace}/allItems`][0]
+          }
+          this.$store.dispatch(`${this.namespace}/updateMap`, tempMap)
+        }
+      }
+      return true
+    },
+    loadConfigFromElement (elementId) {
+      elementId = elementId || this.config
+      if (elementId && typeof elementId === 'string') {
+        if (elementId[0] !== '#') {
+          return false
+        }
+        awaitSelector(elementId, document.querySelector('body'), 250).then((items) => {
+          this.configElem = items[0]
+          this.applyConfig(items[0].value)
+        })
+      }
+      return false
     },
     serializeConfig () {
       if (this.configElem) {
