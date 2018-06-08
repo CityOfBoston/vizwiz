@@ -106,7 +106,7 @@ export default {
       if (this.config[0] === '#') {
         this.configElem = document.getElementById(this.config.slice(1))
         if (this.configElem === undefined || this.configElem === null) {
-          console.log('VizWiz config is null or undefined.')
+          console.log('VizWiz config element "%s" is null or undefined.', this.config)
           return
         }
         if (this.configElem.value === undefined || this.configElem.value === '') {
