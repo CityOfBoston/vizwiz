@@ -216,23 +216,13 @@
         "fill": {
           "type": "boolean",
           "description": "If true, fills the polygons with the color at partial opacity."
-        },
-
+        }
       }
     },
     "LegendStyle": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "symbol": {
-          "type": "string",
-          "enum": [
-            "icon",
-            "line",
-            "polygon"
-          ],
-          "description": "* `icon`: Shows the `markerUrl` icon from `icons`.\n* `line`: Renders a line with the `color` from the `polygons` configuration.\n* `polygon`: Renders a box with the `color` from the `polygons` configuration, with a semitransparent fill."
-        },
         "label": {
           "type": "string",
           "description": "The label to show in the legend for this layer.",
