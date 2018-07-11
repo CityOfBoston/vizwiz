@@ -212,7 +212,12 @@
           "examples": [
             "#FB4D42"
           ]
-        }
+        },
+        "fill": {
+          "type": "boolean",
+          "description": "If true, fills the polygons with the color at partial opacity."
+        },
+
       }
     },
     "LegendStyle": {
